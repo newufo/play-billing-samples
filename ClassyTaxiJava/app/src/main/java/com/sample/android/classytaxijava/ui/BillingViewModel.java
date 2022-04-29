@@ -19,11 +19,6 @@ package com.sample.android.classytaxijava.ui;
 import android.app.Application;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.SkuDetails;
@@ -34,6 +29,11 @@ import com.sample.android.classytaxijava.data.SubscriptionStatus;
 
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 
 public class BillingViewModel extends AndroidViewModel {
 
@@ -292,7 +292,7 @@ public class BillingViewModel extends AndroidViewModel {
         } else {
             SubscriptionStatus subscription = BillingUtilities
                     .getSubscriptionForSku(subscriptions, oldSku);
-            if (subscription != null && subscription.subAlreadyOwned) {
+            if (subscription != null && subscription.isSubAlreadyOwned()) {
                 Log.i("Billing", "The old subscription is used by a " +
                         "different app account. However, it was paid for by the same " +
                         "Google account that is on this device.");

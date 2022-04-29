@@ -19,10 +19,10 @@ package com.example.subscriptions.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v17.leanback.app.GuidedStepSupportFragment
-import android.support.v17.leanback.widget.GuidanceStylist.Guidance
-import android.support.v17.leanback.widget.GuidedAction
-import android.support.v4.app.FragmentActivity
+import androidx.fragment.app.FragmentActivity
+import androidx.leanback.app.GuidedStepSupportFragment
+import androidx.leanback.widget.GuidanceStylist
+import androidx.leanback.widget.GuidedAction
 import com.example.subscriptions.R
 
 /**
@@ -64,11 +64,13 @@ class TvManageSubscriptionsActivity : FragmentActivity() {
             title: String,
             desc: String?
         ) {
-            actions.add(GuidedAction.Builder(context)
-                .id(id)
-                .title(title)
-                .description(desc)
-                .build())
+            actions.add(
+                GuidedAction.Builder(context)
+                    .id(id)
+                    .title(title)
+                    .description(desc)
+                    .build()
+            )
         }
     }
 
@@ -78,7 +80,11 @@ class TvManageSubscriptionsActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (null == savedInstanceState) {
-            GuidedStepSupportFragment.addAsRoot(this, TvManageSubscriptionsFragment(), android.R.id.content)
+            GuidedStepSupportFragment.addAsRoot(
+                this,
+                TvManageSubscriptionsFragment(),
+                android.R.id.content
+            )
         }
     }
 
@@ -88,36 +94,45 @@ class TvManageSubscriptionsActivity : FragmentActivity() {
      */
     class TvManageSubscriptionsFragment : GuidedStepSupportFragment() {
 
-        override fun onCreateGuidance(savedInstanceState: Bundle?): Guidance {
+        override fun onCreateGuidance(savedInstanceState: Bundle?): GuidanceStylist.Guidance {
             val title = getString(R.string.manage_subscription_label)
             val description = getString(R.string.manage_subscription_message)
             val icon = requireActivity().resources.getDrawable(R.drawable.tv_banner)
-            return Guidance(title, description, null, icon)
+            return GuidanceStylist.Guidance(title, description, null, icon)
         }
 
-        override fun onCreateActions(actions: MutableList<GuidedAction>,
-                                     savedInstanceState: Bundle?
+        override fun onCreateActions(
+            actions: MutableList<GuidedAction>,
+            savedInstanceState: Bundle?
         ) {
-            addAction(context,
+            addAction(
+                context,
                 actions,
                 OPTION_GOOGLE_PLAY.toLong(),
                 resources.getString(R.string.google_play_subscriptions),
-                null)
-            addAction(context,
+                null
+            )
+            addAction(
+                context,
                 actions,
                 OPTION_BASIC_SUBSCRIPTION.toLong(),
                 resources.getString(R.string.subscription_option_basic_message),
-                null)
-            addAction(context,
+                null
+            )
+            addAction(
+                context,
                 actions,
                 OPTION_PREMIUM_SUBSCRIPTION.toLong(),
                 resources.getString(R.string.subscription_option_premium_message),
-                null)
-            addAction(context,
+                null
+            )
+            addAction(
+                context,
                 actions,
                 OPTION_DONE.toLong(),
                 resources.getString(R.string.done),
-                null)
+                null
+            )
         }
 
         override fun onGuidedActionClicked(action: GuidedAction?) {
@@ -154,22 +169,25 @@ class TvManageSubscriptionsActivity : FragmentActivity() {
             }
         }
 
-        override fun onCreateGuidance(savedInstanceState: Bundle?): Guidance {
+        override fun onCreateGuidance(savedInstanceState: Bundle?): GuidanceStylist.Guidance {
             val selectedOption = arguments?.getInt(ARG_SUBSCRIPTION_OPTION)
             val title = getString(OPTION_NAMES[selectedOption!!])
             val description = getString(R.string.manage_subscription_scan_qr_code)
             val icon = requireActivity().resources.getDrawable(OPTION_DRAWABLES[selectedOption])
-            return Guidance(title, description, null, icon)
+            return GuidanceStylist.Guidance(title, description, null, icon)
         }
 
-        override fun onCreateActions(actions: MutableList<GuidedAction>,
-                                     savedInstanceState: Bundle?
+        override fun onCreateActions(
+            actions: MutableList<GuidedAction>,
+            savedInstanceState: Bundle?
         ) {
-            addAction(context,
+            addAction(
+                context,
                 actions,
                 OPTION_DONE.toLong(),
                 getString(R.string.done),
-                null)
+                null
+            )
         }
 
         override fun onGuidedActionClicked(action: GuidedAction?) {

@@ -20,7 +20,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 
 data class ContentResource(
-        val url: String?
+    val url: String?
 ) {
 
     companion object {

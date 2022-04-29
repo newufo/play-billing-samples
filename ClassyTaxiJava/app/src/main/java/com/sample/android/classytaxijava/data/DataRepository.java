@@ -19,11 +19,6 @@ package com.sample.android.classytaxijava.data;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
-
 import com.android.billingclient.api.Purchase;
 import com.sample.android.classytaxijava.Constants;
 import com.sample.android.classytaxijava.billing.BillingClientLifecycle;
@@ -32,6 +27,11 @@ import com.sample.android.classytaxijava.data.network.WebDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Observer;
 
 public class DataRepository {
     private static volatile DataRepository INSTANCE = null;
@@ -176,7 +176,7 @@ public class DataRepository {
             boolean updateBasic = false;
             boolean updatePremium = false;
             for (SubscriptionStatus subscription : remoteSubscriptions) {
-                if (Constants.BASIC_SKU.equals(subscription.sku)) {
+                if (Constants.BASIC_SKU.equals(subscription.getSku())) {
                     updateBasic = true;
                 } else {
                     // Premium subscribers get access to basic content as well.
@@ -207,7 +207,7 @@ public class DataRepository {
      */
     private void acknowledgeRegisteredPurchaseTokens(List<SubscriptionStatus> remoteSubscriptions) {
         for (SubscriptionStatus remoteSubscription : remoteSubscriptions) {
-            String purchaseTkn = remoteSubscription.purchaseToken;
+            String purchaseTkn = remoteSubscription.getPurchaseToken();
             billingClientLifecycle.acknowledgePurchase(purchaseTkn);
         }
     }
@@ -237,21 +237,21 @@ public class DataRepository {
         // Find old subscriptions that are in purchases but not in new subscriptions.
         if (purchases != null && oldSubscriptions != null) {
             for (SubscriptionStatus oldSubscription : oldSubscriptions) {
-                if (oldSubscription.subAlreadyOwned && oldSubscription.isLocalPurchase) {
+                if (oldSubscription.isSubAlreadyOwned() && oldSubscription.isLocalPurchase()) {
                     // This old subscription was previously marked as "already owned" by
                     // another user. It should be included in the output if the SKU
                     // and purchase token match their previous value.
                     for (Purchase purchase : purchases) {
-                        if (purchase.getSkus().get(0).equals(oldSubscription.sku) &&
-                                purchase.getPurchaseToken().equals(oldSubscription.purchaseToken)) {
+                        if (purchase.getSkus().get(0).equals(oldSubscription.getSku()) &&
+                                purchase.getPurchaseToken().equals(oldSubscription.getPurchaseToken())) {
                             // The old subscription that was already owned subscription should
                             // be added to the new subscriptions.
                             // Look through the new subscriptions to see if it is there.
                             boolean foundNewSubscription = false;
                             if (newSubscriptions != null) {
                                 for (SubscriptionStatus newSubscription : newSubscriptions) {
-                                    if (TextUtils.equals(newSubscription.sku,
-                                            oldSubscription.sku)) {
+                                    if (TextUtils.equals(newSubscription.getSku(),
+                                            oldSubscription.getSku())) {
                                         foundNewSubscription = true;
                                     }
                                 }
@@ -280,18 +280,18 @@ public class DataRepository {
         if (subscriptions != null) {
             for (SubscriptionStatus subscription : subscriptions) {
                 boolean isLocalPurchase = false;
-                String purchaseToken = subscription.purchaseToken;
+                String purchaseToken = subscription.getPurchaseToken();
                 if (purchases != null) {
                     for (Purchase purchase : purchases) {
-                        if (TextUtils.equals(subscription.sku, purchase.getSkus().get(0))) {
+                        if (TextUtils.equals(subscription.getSku(), purchase.getSkus().get(0))) {
                             isLocalPurchase = true;
                             purchaseToken = purchase.getPurchaseToken();
                         }
                     }
                 }
-                if (subscription.isLocalPurchase != isLocalPurchase) {
-                    subscription.isLocalPurchase = isLocalPurchase;
-                    subscription.purchaseToken = purchaseToken;
+                if (subscription.isLocalPurchase() != isLocalPurchase) {
+                    subscription.setLocalPurchase(isLocalPurchase);
+                    subscription.setPurchaseToken(purchaseToken);
                     hasChanged = true;
                 }
             }

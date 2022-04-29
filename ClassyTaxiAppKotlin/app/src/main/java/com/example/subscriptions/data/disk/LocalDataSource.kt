@@ -32,14 +32,14 @@ class LocalDataSource private constructor(
     val subscriptions = appDatabase.subscriptionStatusDao().getAll()
 
     fun updateSubscriptions(subscriptions: List<SubscriptionStatus>) {
-        executor.execute({
+        executor.execute {
             appDatabase.runInTransaction {
                 // Delete existing subscriptions.
                 appDatabase.subscriptionStatusDao().deleteAll()
                 // Put new subscriptions data into localDataSource.
                 appDatabase.subscriptionStatusDao().insertAll(subscriptions)
             }
-        })
+        }
     }
 
     /**

@@ -15,7 +15,7 @@
  */
 
 import * as functions from 'firebase-functions';
-import { playBilling, verifyAuthentication, contentManager } from '../shared'
+import { playBilling, verifyAuthentication, contentManager, verifyFirebaseAuthIdToken, sendHttpsError, verifyInstanceIdToken } from '../shared'
 
 const BASIC_PLAN_SKU = functions.config().app.basic_plan_sku;
 const PREMIUM_PLAN_SKU = functions.config().app.premium_plan_sku;
@@ -24,6 +24,7 @@ const PREMIUM_PLAN_SKU = functions.config().app.premium_plan_sku;
  * Each functions checks if the active user have access to the subscribed content,
  * and then returns the content to client app.
  */
+
 
 /* Callable that serves basic content to the client
  */
@@ -34,6 +35,24 @@ export const content_basic = functions.https.onCall(async (data, context) => {
   return contentManager.getBasicContent()
 })
 
+/* HTTPS request that serves basic content to the client.
+ *
+ * @param {Request} request
+ * @param {Response} response
+ */
+export const content_basic_v2 = functions.https.onRequest(async (request, response) => {
+  return verifyFirebaseAuthIdToken(request, response)
+     .then(async (decodedToken) => {
+       const uid = decodedToken.uid;
+       await verifySubscriptionOwnershipAsyncV2(uid, [BASIC_PLAN_SKU, PREMIUM_PLAN_SKU]);
+
+       const data = contentManager.getBasicContent();
+       response.send(data);
+     }).catch((error: functions.https.HttpsError) =>{
+        sendHttpsError(error, response);
+     });
+});
+
 /* Callable that serves premium content to the client
  */
 export const content_premium = functions.https.onCall(async (data, context) => {
@@ -41,9 +60,47 @@ export const content_premium = functions.https.onCall(async (data, context) => {
   await verifySubscriptionOwnershipAsync(context, [PREMIUM_PLAN_SKU]);
 
   return contentManager.getPremiumContent()
-})
+});
 
-// Util function that verifies if current user owns at least one active purchases listed in skus
+/* HTTPS request that serves premium content to the client
+ *
+ * @param {Request} request
+ * @param {Response} response
+ */
+export const content_premium_v2 = functions.https.onRequest(async (request, response) =>{
+  return verifyFirebaseAuthIdToken(request, response)
+    .then(async (decodedToken) => {
+      const uid = decodedToken.uid;
+      await verifySubscriptionOwnershipAsyncV2(uid, [PREMIUM_PLAN_SKU]);
+
+      const data = contentManager.getPremiumContent();
+      response.send(data);
+    }).catch((error: functions.https.HttpsError) =>{
+       sendHttpsError(error, response)
+    });
+});
+
+/* Util function that verifies if current user owns at least one active purchases listed in skus
+ */
+async function verifySubscriptionOwnershipAsyncV2(uid: string, skus: Array<string>): Promise<void> {
+  const purchaseList = await playBilling.users().queryCurrentSubscriptions(uid)
+    .catch(err => {
+      console.error(err.message);
+      throw new functions.https.HttpsError('internal', 'Internal server error');
+    });
+
+  const isUserHavingTheSku = purchaseList.some(purchase => ((skus.indexOf(purchase.sku) > -1) && (purchase.isEntitlementActive())));
+  if (!isUserHavingTheSku) {
+    throw new functions.https.HttpsError('permission-denied', 'Valid subscription not found');
+  }
+}
+
+/*Util function that verifies if current user owns at least one active purchases listed in skus
+ *
+ * @param {string} uid
+ * @param {Array<string>} skus
+ * @throws {HttpsError}
+ */
 async function verifySubscriptionOwnershipAsync(context: functions.https.CallableContext, skus: Array<string>): Promise<void> {
   const purchaseList = await playBilling.users().queryCurrentSubscriptions(context.auth.uid)
     .catch(err => {

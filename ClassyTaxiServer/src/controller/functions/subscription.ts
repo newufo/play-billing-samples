@@ -17,7 +17,7 @@
 import * as firebase from 'firebase-admin'
 import * as functions from 'firebase-functions';
 import { SkuType, PurchaseUpdateError, DeveloperNotification, NotificationType } from "../../play-billing";
-import { playBilling, verifyAuthentication, PACKAGE_NAME, instanceIdManager } from '../shared'
+import { playBilling, verifyAuthentication, PACKAGE_NAME, instanceIdManager, sendHttpsError, verifyFirebaseAuthIdToken, logAndThrowHttpsError } from '../shared'
 import { SubscriptionStatus } from '../../model/SubscriptionStatus';
 
 /* This file contains implementation of functions related to linking subscription purchase with user account
@@ -58,6 +58,51 @@ export const subscription_register = functions.https.onCall(async (data, context
   return getSubscriptionsResponseObject(context.auth.uid);
 });
 
+/* HTTPS request that registers a subscription purchased
+ * in Android app via Google Play Billing to an user.
+ *
+ * It only works with brand-new subscription purchases,
+ * which have not been registered to other users before.
+ *
+ * @param {Request} request
+ * @param {Response} response
+ */
+export const subscription_register_v2 = functions.https.onRequest(async (request, response) => {
+  return verifyFirebaseAuthIdToken(request, response)
+    .then(async (decodedToken) => {
+      const sku = request.body.sku;
+      const uid = decodedToken.uid;
+      const token = request.body.purchaseToken;
+
+      try {
+        await playBilling.purchases().registerToUserAccount(
+          PACKAGE_NAME,
+          sku,
+          token,
+          SkuType.SUBS,
+          uid
+        );
+      } catch (err) {
+        switch (err.name) {
+          case PurchaseUpdateError.CONFLICT: {
+            logAndThrowHttpsError('already-exists', err.message);
+          }
+          case PurchaseUpdateError.INVALID_TOKEN: {
+            logAndThrowHttpsError('not-found', err.message);
+          }
+          default: {
+            logAndThrowHttpsError('internal', err.message);
+          }
+        }
+      };
+
+      const data = await getSubscriptionsResponseObject(uid);
+      response.send(data);
+    }).catch((error: functions.https.HttpsError) => {
+      sendHttpsError(error, response);
+    });
+});
+
 /* Register a subscription purchased in Android app via Google Play Billing to an user.
  * It only works with all active subscriptions, no matter if it's registered or not.
  */
@@ -90,8 +135,50 @@ export const subscription_transfer = functions.https.onCall(async (data, context
   return getSubscriptionsResponseObject(context.auth.uid);
 });
 
+/* HTTPS request that registers a subscription purchased
+ * in Android app via Google Play Billing to an user.
+ *
+ * It only works with all active subscription purchases,
+ * no matter if it's registered or not.
+ *
+ * @param {Request} request
+ * @param {Response} response
+ */
+export const subscription_transfer_v2 = functions.https.onRequest(async (request, response) => {
+  return verifyFirebaseAuthIdToken(request, response)
+    .then(async (decodedToken) => {
+      const sku = request.body.sku;
+      const uid = decodedToken.uid;
+      const token = request.body.purchaseToken;
+
+      try {
+        await playBilling.purchases().transferToUserAccount(
+          PACKAGE_NAME,
+          sku,
+          token,
+          SkuType.SUBS,
+          uid
+        );
+      } catch (err) {
+        switch (err.name) {
+          case PurchaseUpdateError.INVALID_TOKEN: {
+            logAndThrowHttpsError('not-found', err.message);
+          }
+          default: {
+            logAndThrowHttpsError('internal', err.message);
+          }
+        }
+      }
+
+      const data = await getSubscriptionsResponseObject(uid);
+      response.send(data);
+    }).catch((error: functions.https.HttpsError) => {
+      sendHttpsError(error, response);
+    });
+});
+
 /* Returns a list of active subscriptions and those under Account Hold.
- * Subscriptions in Account Hold can still be recovered, 
+ * Subscriptions in Account Hold can still be recovered,
  * so it's useful that client app know about them and show an appropriate message to the user.
  */
 export const subscription_status = functions.https.onCall((data, context) => {
@@ -101,6 +188,27 @@ export const subscription_status = functions.https.onCall((data, context) => {
     .catch(err => {
       console.error(err.message);
       throw new functions.https.HttpsError('internal', 'Internal server error');
+    });
+});
+
+/* HTTPS request that returns a list of active subscriptions
+ * and those under Account Hold.
+ *
+ * Subscriptions in Account Hold can still be recovered,
+ * so it's useful that client app know about them and show
+ * an appropriate message to the user.
+ *
+ * @param {Request} request
+ * @param {Response} response
+ */
+export const subscription_status_v2 = functions.https.onRequest(async (request, response) => {
+  return verifyFirebaseAuthIdToken(request, response)
+    .then(async decodedToken => {
+      const uid = decodedToken.uid;
+      const responseData = await getSubscriptionsResponseObject(uid)
+      response.send(responseData);
+    }).catch((error: functions.https.HttpsError) => {
+      sendHttpsError(error, response);
     });
 });
 

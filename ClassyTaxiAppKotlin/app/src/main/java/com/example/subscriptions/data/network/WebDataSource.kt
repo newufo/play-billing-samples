@@ -16,7 +16,7 @@
 
 package com.example.subscriptions.data.network
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import com.example.subscriptions.AppExecutors
 import com.example.subscriptions.data.SubscriptionStatus
 import com.example.subscriptions.data.network.firebase.ServerFunctions
@@ -27,8 +27,8 @@ import java.util.concurrent.Executor
  * Fetch data from a [ServerFunctions] object and expose with [subscriptions].
  */
 class WebDataSource private constructor(
-        private val executor: Executor,
-        private val serverFunctions: ServerFunctions
+    private val executor: Executor,
+    private val serverFunctions: ServerFunctions
 ) {
 
     /**
@@ -66,55 +66,55 @@ class WebDataSource private constructor(
      * GET request for subscription status.
      */
     fun updateSubscriptionStatus() {
-        executor.execute({
+        executor.execute {
             synchronized(WebDataSource::class.java) {
                 serverFunctions.updateSubscriptionStatus()
             }
-        })
+        }
     }
 
     /**
      * POST request to register subscription.
      */
     fun registerSubscription(sku: String, purchaseToken: String) {
-        executor.execute({
+        executor.execute {
             synchronized(WebDataSource::class.java) {
                 serverFunctions.registerSubscription(sku = sku, purchaseToken = purchaseToken)
             }
-        })
+        }
     }
 
     /**
      * POST request to transfer a subscription that is owned by someone else.
      */
     fun postTransferSubscriptionSync(sku: String, purchaseToken: String) {
-        executor.execute({
+        executor.execute {
             synchronized(WebDataSource::class.java) {
                 serverFunctions.transferSubscription(sku = sku, purchaseToken = purchaseToken)
             }
-        })
+        }
     }
 
     /**
      * POST request to register an Instance ID.
      */
     fun postRegisterInstanceId(instanceId: String) {
-        executor.execute({
+        executor.execute {
             synchronized(WebDataSource::class.java) {
                 serverFunctions.registerInstanceId(instanceId)
             }
-        })
+        }
     }
 
     /**
      * POST request to unregister an Instance ID.
      */
     fun postUnregisterInstanceId(instanceId: String) {
-        executor.execute({
+        executor.execute {
             synchronized(WebDataSource::class.java) {
                 serverFunctions.unregisterInstanceId(instanceId)
             }
-        })
+        }
     }
 
     companion object {
@@ -122,13 +122,16 @@ class WebDataSource private constructor(
         @Volatile
         private var INSTANCE: WebDataSource? = null
 
-        fun getInstance(executors: AppExecutors, callableFunctions: ServerFunctions): WebDataSource =
-                INSTANCE ?: synchronized(this) {
-                    INSTANCE ?: WebDataSource(
-                            executors.networkIO,
-                            callableFunctions
-                    ).also { INSTANCE = it }
-                }
+        fun getInstance(
+            executors: AppExecutors,
+            callableFunctions: ServerFunctions
+        ): WebDataSource =
+            INSTANCE ?: synchronized(this) {
+                INSTANCE ?: WebDataSource(
+                    executors.networkIO,
+                    callableFunctions
+                ).also { INSTANCE = it }
+            }
     }
 
 }

@@ -16,8 +16,7 @@
 
 package com.example.subscriptions.data.network.firebase
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.subscriptions.Constants
 import com.example.subscriptions.billing.isBasicContent
 import com.example.subscriptions.billing.isPremiumContent

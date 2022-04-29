@@ -18,20 +18,21 @@ package com.sample.android.classytaxijava.data.network.firebase;
 
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
-import com.sample.android.classytaxijava.SubApp;
-import com.sample.android.classytaxijava.data.SubscriptionStatus;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
+import com.sample.android.classytaxijava.SubApp;
+import com.sample.android.classytaxijava.data.SubscriptionStatusList;
 
-import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.Nullable;
 
 public class SubscriptionMessageService extends FirebaseMessagingService {
 
     private static final String TAG = "SubscriptionMsgService";
     private static final String REMOTE_MESSAGE_SUBSCRIPTIONS_KEY = "currentStatus";
+    private final Gson gson = new Gson();
 
     @Override
     public void onMessageReceived(@Nullable RemoteMessage remoteMessage) {
@@ -39,18 +40,23 @@ public class SubscriptionMessageService extends FirebaseMessagingService {
             Log.i(TAG, "Received null remote message");
             return;
         }
+
         Map<String, String> data = remoteMessage.getData();
-        if (!data.isEmpty()) {
-            List<SubscriptionStatus> result = null;
-            if (data.containsKey(REMOTE_MESSAGE_SUBSCRIPTIONS_KEY)) {
-                result = SubscriptionStatus
-                        .listFromJsonString(data.get(REMOTE_MESSAGE_SUBSCRIPTIONS_KEY));
-            }
-            if (result == null) {
-                Log.e(TAG, "Invalid subscription data");
-            } else {
-                ((SubApp) getApplication()).getRepository().updateSubscriptionsFromNetwork(result);
-            }
+        if (data.isEmpty()) {
+            Log.i(TAG, "Remote message is empty");
+            return;
+        }
+
+        if (!data.containsKey(REMOTE_MESSAGE_SUBSCRIPTIONS_KEY)) {
+            Log.e(TAG, "Remote message does not contain key");
+            return;
+        }
+
+        SubscriptionStatusList result = gson.fromJson(data.get(REMOTE_MESSAGE_SUBSCRIPTIONS_KEY), SubscriptionStatusList.class);
+        if (result == null) {
+            Log.e(TAG, "Received null subscription data");
+        } else {
+            ((SubApp) getApplication()).getRepository().updateSubscriptionsFromNetwork(result.getSubscriptions());
         }
     }
 }

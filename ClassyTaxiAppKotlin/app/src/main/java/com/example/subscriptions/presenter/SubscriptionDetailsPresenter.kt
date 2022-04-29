@@ -16,9 +16,8 @@
 
 package com.example.subscriptions.presenter
 
-import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter
 import android.text.TextUtils
-
+import androidx.leanback.widget.AbstractDetailsDescriptionPresenter
 import com.example.subscriptions.data.SubscriptionContent
 
 /**
@@ -29,12 +28,10 @@ class SubscriptionDetailsPresenter : AbstractDetailsDescriptionPresenter() {
     override fun onBindDescription(viewHolder: ViewHolder, item: Any) {
         val subscription = item as SubscriptionContent
 
-        if (subscription != null) {
-            viewHolder.title.text = subscription.title
-            viewHolder.subtitle.text = subscription.subtitle
-            if (!TextUtils.isEmpty(subscription.description)) {
-                viewHolder.body.text = subscription.description
-            }
+        viewHolder.title.text = subscription.title
+        viewHolder.subtitle.text = subscription.subtitle
+        if (!TextUtils.isEmpty(subscription.description)) {
+            viewHolder.body.text = subscription.description
         }
     }
 }

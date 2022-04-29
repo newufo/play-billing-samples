@@ -20,124 +20,152 @@ import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.annotations.SerializedName;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Local subscription data. This is stored on disk in a database.
  */
 @Entity(tableName = "subscriptions")
 public class SubscriptionStatus {
-    public class SubscriptionStatusList {
-        @Nullable
-        @SerializedName("subscriptions")
-        List<SubscriptionStatus> subscriptionStatuses;
-
-        SubscriptionStatusList(@Nullable List<SubscriptionStatus> subscriptionStatuses) {
-            this.subscriptionStatuses = subscriptionStatuses;
-        }
-    }
-
-    public static final String SUBSCRIPTIONS_KEY = "subscriptions";
-    public static final String SKU_KEY = "sku";
-    public static final String PURCHASE_TOKEN_KEY = "purchaseToken";
-    public static final String IS_ENTITLEMENT_ACTIVE_KEY = "isEntitlementActive";
-    public static final String WILL_RENEW_KEY = "willRenew";
-    public static final String ACTIVE_UNTIL_MILLISEC_KEY = "activeUntilMillisec";
-    public static final String IS_FREE_TRIAL_KEY = "isFreeTrial";
-    public static final String IS_GRACE_PERIOD_KEY = "isGracePeriod";
-    public static final String IS_ACCOUNT_HOLD_KEY = "isAccountHold";
-    public static final String IS_PAUSED_KEY = "isPaused";
-    public static final String AUTO_RESUME_TIME_MILLISEC_KEY = "autoResumeTimeMillis";
-
 
     // Local fields
     @PrimaryKey(autoGenerate = true)
-    public int primaryKey = 0;
+    private int primaryKey = 0;
     @Nullable
-    public String subscriptionStatusJson;
-    public boolean subAlreadyOwned;
-    public boolean isLocalPurchase;
+    private String subscriptionStatusJson;
+    private boolean subAlreadyOwned;
+    private boolean isLocalPurchase;
 
     // Remote fields
     @Nullable
-    public String sku;
+    private String sku;
     @Nullable
-    public String purchaseToken;
-    public boolean isEntitlementActive;
-    public boolean willRenew;
-    public Long activeUntilMillisec = 0L;
-    public boolean isFreeTrial;
-    public boolean isGracePeriod;
-    public boolean isAccountHold;
-    public boolean isPaused;
-    public Long autoResumeTimeMillis = 0L;
+    private String purchaseToken;
+    private boolean isEntitlementActive;
+    private boolean willRenew;
+    private Long activeUntilMillisec;
+    private boolean isFreeTrial;
+    private boolean isGracePeriod;
+    private boolean isAccountHold;
+    private boolean isPaused;
+    private Long autoResumeTimeMillis;
 
-    /**
-     * Parse subscription data from Map and return null if data is not valid.
-     */
-    @Nullable
-    public static List<SubscriptionStatus> listFromMap(Map<String, Object> map) {
-        List<SubscriptionStatus> subscriptions = new ArrayList<>();
-
-        List<Map<String, Object>> subList = null;
-
-        if (map.get(SUBSCRIPTIONS_KEY) instanceof ArrayList) {
-            subList = (ArrayList) map.get(SUBSCRIPTIONS_KEY);
-        }
-
-        if (subList == null) {
-            return null;
-        }
-
-        for (Map<String, Object> subStatus : subList) {
-            SubscriptionStatus subscriptionStatus = new SubscriptionStatus();
-
-            subscriptionStatus.sku = (String) subStatus.get(SKU_KEY);
-            subscriptionStatus.purchaseToken = (String) subStatus.get(PURCHASE_TOKEN_KEY);
-            subscriptionStatus.isEntitlementActive = (boolean) subStatus.get(IS_ENTITLEMENT_ACTIVE_KEY);
-            subscriptionStatus.willRenew = (boolean) subStatus.get(WILL_RENEW_KEY);
-            subscriptionStatus.activeUntilMillisec =
-                    (Long) subStatus.get(ACTIVE_UNTIL_MILLISEC_KEY);
-            subscriptionStatus.isFreeTrial = (boolean) subStatus.get(IS_FREE_TRIAL_KEY);
-            subscriptionStatus.isGracePeriod = (boolean) subStatus.get(IS_GRACE_PERIOD_KEY);
-            subscriptionStatus.isAccountHold = (boolean) subStatus.get(IS_ACCOUNT_HOLD_KEY);
-            subscriptionStatus.isPaused = (boolean) subStatus.get(IS_PAUSED_KEY);
-            subscriptionStatus.autoResumeTimeMillis =
-                    (Long) subStatus.get(AUTO_RESUME_TIME_MILLISEC_KEY);
-            subscriptions.add(subscriptionStatus);
-        }
-
-        return subscriptions;
+    public boolean isWillRenew() {
+        return willRenew;
     }
 
-    /**
-     * Parse subscription data from String and return null if data is not valid.
-     */
+    public void setWillRenew(boolean willRenew) {
+        this.willRenew = willRenew;
+    }
+
     @Nullable
-    public static List<SubscriptionStatus> listFromJsonString(String dataString) {
-        Gson gson = new Gson();
-        try {
-            SubscriptionStatusList subscriptionStatusList =
-                    gson.fromJson(dataString, SubscriptionStatusList.class);
-            if (subscriptionStatusList != null) {
-                return subscriptionStatusList.subscriptionStatuses;
-            } else {
-                return null;
-            }
-        } catch (JsonSyntaxException e) {
-            return null;
-        }
+    public String getPurchaseToken() {
+        return purchaseToken;
+    }
+
+    public void setPurchaseToken(@Nullable String purchaseToken) {
+        this.purchaseToken = purchaseToken;
+    }
+
+    public boolean isGracePeriod() {
+        return isGracePeriod;
+    }
+
+    public void setGracePeriod(boolean gracePeriod) {
+        isGracePeriod = gracePeriod;
+    }
+
+    public boolean isEntitlementActive() {
+        return isEntitlementActive;
+    }
+
+    public void setEntitlementActive(boolean entitlementActive) {
+        isEntitlementActive = entitlementActive;
+    }
+
+    public Long getActiveUntilMillisec() {
+        return activeUntilMillisec;
+    }
+
+    public void setActiveUntilMillisec(Long activeUntilMillisec) {
+        this.activeUntilMillisec = activeUntilMillisec;
+    }
+
+    public boolean isFreeTrial() {
+        return isFreeTrial;
+    }
+
+    public void setFreeTrial(boolean freeTrial) {
+        isFreeTrial = freeTrial;
+    }
+
+    @Nullable
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public boolean isAccountHold() {
+        return isAccountHold;
+    }
+
+    public void setAccountHold(boolean accountHold) {
+        isAccountHold = accountHold;
+    }
+
+    public boolean isPaused() {
+        return isPaused;
+    }
+
+    public void setPaused(boolean paused) {
+        isPaused = paused;
+    }
+
+    public Long getAutoResumeTimeMillis() {
+        return autoResumeTimeMillis;
+    }
+
+    public void setAutoResumeTimeMillis(Long autoResumeTimeMillis) {
+        this.autoResumeTimeMillis = autoResumeTimeMillis;
+    }
+
+    public int getPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setPrimaryKey(int primaryKey) {
+        this.primaryKey = primaryKey;
+    }
+
+    @Nullable
+    public String getSubscriptionStatusJson() {
+        return subscriptionStatusJson;
+    }
+
+    public void setSubscriptionStatusJson(@Nullable String subscriptionStatusJson) {
+        this.subscriptionStatusJson = subscriptionStatusJson;
+    }
+
+    public boolean isSubAlreadyOwned() {
+        return subAlreadyOwned;
+    }
+
+    public void setSubAlreadyOwned(boolean subAlreadyOwned) {
+        this.subAlreadyOwned = subAlreadyOwned;
+    }
+
+    public boolean isLocalPurchase() {
+        return isLocalPurchase;
+    }
+
+    public void setLocalPurchase(boolean localPurchase) {
+        isLocalPurchase = localPurchase;
     }
 
     /**
      * Create a record for a subscription that is already owned by a different user.
-     *
+     * <p>
      * The server does not return JSON for a subscription that is already owned by
      * a different user, so we need to construct a local record with the basic fields.
      */

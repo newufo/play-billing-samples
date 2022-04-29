@@ -16,21 +16,9 @@
 
 package com.example.subscriptions.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v17.leanback.app.BackgroundManager
-import android.support.v17.leanback.app.DetailsSupportFragment
-import android.support.v17.leanback.widget.Action
-import android.support.v17.leanback.widget.ArrayObjectAdapter
-import android.support.v17.leanback.widget.ClassPresenterSelector
-import android.support.v17.leanback.widget.DetailsOverviewRow
-import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter
-import android.support.v17.leanback.widget.SparseArrayObjectAdapter
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
@@ -39,6 +27,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.leanback.app.BackgroundManager
+import androidx.leanback.app.DetailsSupportFragment
+import androidx.leanback.widget.Action
+import androidx.leanback.widget.ArrayObjectAdapter
+import androidx.leanback.widget.ClassPresenterSelector
+import androidx.leanback.widget.DetailsOverviewRow
+import androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter
+import androidx.leanback.widget.SparseArrayObjectAdapter
+import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
@@ -50,13 +49,11 @@ import com.example.subscriptions.billing.isGracePeriod
 import com.example.subscriptions.billing.isPremiumContent
 import com.example.subscriptions.billing.isSubscriptionRestore
 import com.example.subscriptions.billing.isTransferRequired
-import com.example.subscriptions.data.ContentResource
 import com.example.subscriptions.data.SubscriptionContent
 import com.example.subscriptions.data.SubscriptionStatus
 import com.example.subscriptions.presenter.SubscriptionDetailsPresenter
 import com.example.subscriptions.utils.basicTextForSubscription
 import com.example.subscriptions.utils.premiumTextForSubscription
-import com.google.firebase.auth.FirebaseUser
 
 /**
  * TvMainFragment implements DetailsSupportFragment to provide an Android TV optimized experience to the user.
@@ -112,38 +109,39 @@ class TvMainFragment : DetailsSupportFragment() {
         // Creates default SubscriptionContent object
         createSubscriptionContent()
 
-        authenticationViewModel = ViewModelProviders.of(requireActivity()).get(FirebaseUserViewModel::class.java)
-        subscriptionsStatusViewModel = ViewModelProviders.of(requireActivity()).get(SubscriptionStatusViewModel::class.java)
-        billingViewModel = ViewModelProviders.of(requireActivity()).get(BillingViewModel::class.java)
+        authenticationViewModel =
+            ViewModelProviders.of(requireActivity()).get(FirebaseUserViewModel::class.java)
+        subscriptionsStatusViewModel =
+            ViewModelProviders.of(requireActivity()).get(SubscriptionStatusViewModel::class.java)
+        billingViewModel =
+            ViewModelProviders.of(requireActivity()).get(BillingViewModel::class.java)
         spinnerFragment = SpinnerFragment()
 
         // Update the UI whenever a user signs in / out
-        authenticationViewModel.firebaseUser.observe(requireActivity(), Observer<FirebaseUser> {
+        authenticationViewModel.firebaseUser.observe(requireActivity(), {
             Log.d(TAG, "firebaseUser onChange()")
             refreshUI()
         })
 
         // Show or hide a Spinner based on loading state
-        subscriptionsStatusViewModel.loading.observe(requireActivity(), Observer<Boolean> { it ->
-            it?.let {
-                Log.d(TAG, "firebaseUser onChange()")
-                if (it) {
-                    fragmentManager?.let { manager ->
-                        manager.beginTransaction().replace(R.id.main_frame, spinnerFragment).commit()
-                    }
+        subscriptionsStatusViewModel.loading.observe(requireActivity(), { isLoading: Boolean ->
+            isLoading.let {
+                if (isLoading) {
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.main_frame, spinnerFragment).commit()
+                    Log.i(TAG, "loading spinner shown")
                 } else {
-                    fragmentManager?.let { manager ->
-                        manager.beginTransaction().remove(spinnerFragment).commit()
-                    }
+                    parentFragmentManager.beginTransaction().remove(spinnerFragment).commit()
+                    Log.i(TAG, "loading spinner hidden")
                 }
             }
         })
 
         // Updates subscription image for Basic plan
-        subscriptionsStatusViewModel.basicContent.observe(requireActivity(), Observer<ContentResource> { it ->
+        subscriptionsStatusViewModel.basicContent.observe(requireActivity(), { it ->
             it?.let {
                 Log.d(TAG, "basicContent onChange()")
-                if (it?.url != null) {
+                if (it.url != null) {
                     // If a premium subscription exists, don't update image with basic plan
                     if (premiumSubscription == null) {
                         updateSubscriptionImage(it.url)
@@ -153,17 +151,17 @@ class TvMainFragment : DetailsSupportFragment() {
         })
 
         // Updates subscription image for Premium plan
-        subscriptionsStatusViewModel.premiumContent.observe(requireActivity(), Observer<ContentResource> { it ->
+        subscriptionsStatusViewModel.premiumContent.observe(requireActivity(), { it ->
             it?.let {
                 Log.d(TAG, "premiumContent onChange()")
-                if (it?.url != null) {
+                if (it.url != null) {
                     updateSubscriptionImage(it.url)
                 }
             }
         })
 
         // Updates subscription details based on list of available subscriptions
-        subscriptionsStatusViewModel.subscriptions.observe(requireActivity(), Observer<List<SubscriptionStatus>> {
+        subscriptionsStatusViewModel.subscriptions.observe(requireActivity(), {
             Log.d(TAG, "subscriptions onChange()")
             updateSubscriptionDetails(it)
         })
@@ -219,9 +217,13 @@ class TvMainFragment : DetailsSupportFragment() {
             .load(R.drawable.tv_background_img)
             .apply(options)
             .into(object : SimpleTarget<Bitmap>(metrics.widthPixels, metrics.heightPixels) {
-                override fun onResourceReady(
-                    resource: Bitmap,
-                    transition: Transition<in Bitmap>) {
+
+                /**
+                 * The method that will be called when the resource load has finished.
+                 *
+                 * @param resource the loaded resource.
+                 */
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     backgroundManager.setBitmap(resource)
                 }
             })
@@ -240,7 +242,7 @@ class TvMainFragment : DetailsSupportFragment() {
         val subscriptionContentBuilder = SubscriptionContent.Builder()
         subscriptionContentBuilder.title(getString(R.string.app_name))
 
-        if (subscriptionStatuses != null && !subscriptionStatuses.isEmpty()) {
+        if (subscriptionStatuses != null && subscriptionStatuses.isNotEmpty()) {
 
             Log.d(TAG, "We have subscriptions!")
 
@@ -330,9 +332,12 @@ class TvMainFragment : DetailsSupportFragment() {
             .load(url)
             .apply(options)
             .into(object : SimpleTarget<Bitmap>() {
-                override fun onResourceReady(
-                    resource: Bitmap,
-                    transition: Transition<in Bitmap>) {
+                /**
+                 * The method that will be called when the resource load has finished.
+                 *
+                 * @param resource the loaded resource.
+                 */
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     detailsOverviewRow.setImageBitmap(requireActivity(), resource)
                 }
             })
@@ -346,7 +351,8 @@ class TvMainFragment : DetailsSupportFragment() {
         // Set detail background and style.
         val detailsPresenter = FullWidthDetailsOverviewRowPresenter(SubscriptionDetailsPresenter())
 
-        detailsPresenter.backgroundColor = ContextCompat.getColor(requireActivity(), R.color.primaryColor)
+        detailsPresenter.backgroundColor =
+            ContextCompat.getColor(requireActivity(), R.color.primaryColor)
         detailsPresenter.initialState = FullWidthDetailsOverviewRowPresenter.STATE_SMALL
         detailsPresenter.alignmentMode = FullWidthDetailsOverviewRowPresenter.ALIGN_MODE_MIDDLE
 
@@ -402,29 +408,45 @@ class TvMainFragment : DetailsSupportFragment() {
         val actionAdapter = SparseArrayObjectAdapter()
 
         // Add Basic Plan Action button
-        actionAdapter.set(ACTION_SUBSCRIBE_BASIC, Action(ACTION_SUBSCRIBE_BASIC.toLong(),
-            if (basicSubscription != null)
-                basicTextForSubscription(resources, basicSubscription!!)
-            else
-                resources.getString(R.string.subscription_option_basic_message)))
+        actionAdapter.set(
+            ACTION_SUBSCRIBE_BASIC, Action(
+                ACTION_SUBSCRIBE_BASIC.toLong(),
+                if (basicSubscription != null)
+                    basicTextForSubscription(resources, basicSubscription!!)
+                else
+                    resources.getString(R.string.subscription_option_basic_message)
+            )
+        )
 
         // Add Premium Plan Action button
-        actionAdapter.set(ACTION_SUBSCRIBE_PREMIUM, Action(ACTION_SUBSCRIBE_PREMIUM.toLong(),
-            if (premiumSubscription != null)
-                premiumTextForSubscription(resources, premiumSubscription!!)
-            else
-                resources.getString(R.string.subscription_option_premium_message)))
+        actionAdapter.set(
+            ACTION_SUBSCRIBE_PREMIUM, Action(
+                ACTION_SUBSCRIBE_PREMIUM.toLong(),
+                if (premiumSubscription != null)
+                    premiumTextForSubscription(resources, premiumSubscription!!)
+                else
+                    resources.getString(R.string.subscription_option_premium_message)
+            )
+        )
 
         // Add Manage Subscriptions Action button
-        actionAdapter.set(ACTION_MANAGE_SUBSCRIPTIONS, Action(ACTION_MANAGE_SUBSCRIPTIONS.toLong(),
-            resources.getString(R.string.manage_subscription_label)))
+        actionAdapter.set(
+            ACTION_MANAGE_SUBSCRIPTIONS, Action(
+                ACTION_MANAGE_SUBSCRIPTIONS.toLong(),
+                resources.getString(R.string.manage_subscription_label)
+            )
+        )
 
         // Add Sign in / out Action button
-        actionAdapter.set(ACTION_SIGN_IN_OUT, Action(ACTION_SIGN_IN_OUT.toLong(),
-            if (authenticationViewModel.isSignedIn())
-                getString(R.string.sign_out)
-            else
-                getString(R.string.sign_in)))
+        actionAdapter.set(
+            ACTION_SIGN_IN_OUT, Action(
+                ACTION_SIGN_IN_OUT.toLong(),
+                if (authenticationViewModel.isSignedIn())
+                    getString(R.string.sign_out)
+                else
+                    getString(R.string.sign_in)
+            )
+        )
 
         // Set Action Adapter and add DetailsOverviewRow to Presenter class
         detailsOverviewRow.actionsAdapter = actionAdapter
@@ -447,7 +469,7 @@ class TvMainFragment : DetailsSupportFragment() {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-        ) : View {
+        ): View {
             val progressBar = ProgressBar(container?.context)
             if (container is FrameLayout) {
                 val res = resources

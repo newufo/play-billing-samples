@@ -18,11 +18,11 @@ package com.example.subscriptions.billing
 
 import android.app.Activity
 import android.app.Application
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.OnLifecycleEvent
 import android.util.Log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.OnLifecycleEvent
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -43,7 +43,7 @@ class BillingClientLifecycle private constructor(
         SkuDetailsResponseListener, PurchasesResponseListener {
 
     /**
-     * The purchase event is observable. Only one oberver will be notified.
+     * The purchase event is observable. Only one observer will be notified.
      */
     val purchaseUpdateEvent = SingleLiveEvent<List<Purchase>>()
 
@@ -61,7 +61,7 @@ class BillingClientLifecycle private constructor(
     /**
      * Instantiate a new BillingClient instance.
      */
-    lateinit private var billingClient: BillingClient
+    private lateinit var billingClient: BillingClient
 
     companion object {
         private const val TAG = "BillingLifecycle"
@@ -125,10 +125,10 @@ class BillingClientLifecycle private constructor(
     }
 
     /**
-     * In order to make purchasese, you need the [SkuDetails] for the item or subscription.
+     * In order to make purchases, you need the [SkuDetails] for the item or subscription.
      * This is an asynchronous call that will receive a result in [onSkuDetailsResponse].
      */
-    fun querySkuDetails() {
+    private fun querySkuDetails() {
         Log.d(TAG, "querySkuDetails")
         val params = SkuDetailsParams.newBuilder()
                 .setType(BillingClient.SkuType.SUBS)
@@ -170,11 +170,11 @@ class BillingClientLifecycle private constructor(
                     }.also { postedValue ->
                         val skuDetailsCount = postedValue.size
                         if (skuDetailsCount == expectedSkuDetailsCount) {
-                            Log.i(TAG, "onSkuDetailsResponse: Found ${skuDetailsCount} SkuDetails")
+                            Log.i(TAG, "onSkuDetailsResponse: Found $skuDetailsCount SkuDetails")
                         } else {
                             Log.e(TAG, "onSkuDetailsResponse: " +
                                     "Expected ${expectedSkuDetailsCount}, " +
-                                    "Found ${skuDetailsCount} SkuDetails. " +
+                                    "Found $skuDetailsCount SkuDetails. " +
                                     "Check to see if the SKUs you requested are correctly published " +
                                     "in the Google Play Console.")
                         }
@@ -209,7 +209,7 @@ class BillingClientLifecycle private constructor(
             Log.e(TAG, "queryPurchases: BillingClient is not ready")
         }
         Log.d(TAG, "queryPurchases: SUBS")
-        billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, this);
+        billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, this)
     }
 
     /**
@@ -217,7 +217,7 @@ class BillingClientLifecycle private constructor(
      */
     override fun onQueryPurchasesResponse(billingResult: BillingResult,
                                           purchasesList: MutableList<Purchase>) {
-        processPurchases(purchasesList);
+        processPurchases(purchasesList)
     }
 
     /**

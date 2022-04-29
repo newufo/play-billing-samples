@@ -37,7 +37,7 @@
         </activity>
 
         <service
-            android:name=".InstanceIDService"
+            android:name=".FcmRegistrationTokenService"
             android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
