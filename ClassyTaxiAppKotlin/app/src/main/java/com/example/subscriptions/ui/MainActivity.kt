@@ -266,4 +266,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    fun commitgit(){
+
+    }
+
 }
