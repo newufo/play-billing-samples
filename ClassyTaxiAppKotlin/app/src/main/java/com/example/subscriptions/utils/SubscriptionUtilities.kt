@@ -32,24 +32,31 @@ import com.example.subscriptions.data.SubscriptionStatus
  * Add an asterisk if the subscription is not local and might not be modifiable on this device.
  */
 fun basicTextForSubscription(res: Resources, subscription: SubscriptionStatus): String {
-    val text = if (isAccountHold(subscription)) {
-        res.getString(R.string.subscription_option_basic_message_account_hold)
-    } else if (isPaused(subscription)) {
-        res.getString(R.string.subscription_option_basic_message_account_paused)
-    } else if (isGracePeriod(subscription)) {
-        res.getString(R.string.subscription_option_basic_message_grace_period)
-    } else if (isSubscriptionRestore(subscription)) {
-        res.getString(R.string.subscription_option_basic_message_restore)
-    } else if (isBasicContent(subscription)) {
-        res.getString(R.string.subscription_option_basic_message_current)
-    } else {
-        res.getString(R.string.subscription_option_basic_message)
+    val text = when {
+        isAccountHold(subscription) -> {
+            res.getString(R.string.subscription_option_basic_message_account_hold)
+        }
+        isPaused(subscription) -> {
+            res.getString(R.string.subscription_option_basic_message_account_paused)
+        }
+        isGracePeriod(subscription) -> {
+            res.getString(R.string.subscription_option_basic_message_grace_period)
+        }
+        isSubscriptionRestore(subscription) -> {
+            res.getString(R.string.subscription_option_basic_message_restore)
+        }
+        isBasicContent(subscription) -> {
+            res.getString(R.string.subscription_option_basic_message_current)
+        }
+        else -> {
+            res.getString(R.string.subscription_option_basic_message)
+        }
     }
     return if (subscription.isLocalPurchase) {
         text
     } else {
         // No local record, so the subscription cannot be managed on this device.
-        text + "*"
+        "$text*"
     }
 }
 
@@ -59,23 +66,30 @@ fun basicTextForSubscription(res: Resources, subscription: SubscriptionStatus): 
  * Add an asterisk if the subscription is not local and might not be modifiable on this device.
  */
 fun premiumTextForSubscription(res: Resources, subscription: SubscriptionStatus): String {
-    val text = if (isAccountHold(subscription)) {
-        res.getString(R.string.subscription_option_premium_message_account_hold)
-    } else if (isPaused(subscription)) {
-        res.getString(R.string.subscription_option_premium_message_account_paused)
-    } else if (isGracePeriod(subscription)) {
-        res.getString(R.string.subscription_option_premium_message_grace_period)
-    } else if (isSubscriptionRestore(subscription)) {
-        res.getString(R.string.subscription_option_premium_message_restore)
-    } else if (isPremiumContent(subscription)) {
-        res.getString(R.string.subscription_option_premium_message_current)
-    } else {
-        res.getString(R.string.subscription_option_premium_message)
+    val text = when {
+        isAccountHold(subscription) -> {
+            res.getString(R.string.subscription_option_premium_message_account_hold)
+        }
+        isPaused(subscription) -> {
+            res.getString(R.string.subscription_option_premium_message_account_paused)
+        }
+        isGracePeriod(subscription) -> {
+            res.getString(R.string.subscription_option_premium_message_grace_period)
+        }
+        isSubscriptionRestore(subscription) -> {
+            res.getString(R.string.subscription_option_premium_message_restore)
+        }
+        isPremiumContent(subscription) -> {
+            res.getString(R.string.subscription_option_premium_message_current)
+        }
+        else -> {
+            res.getString(R.string.subscription_option_premium_message)
+        }
     }
     return if (subscription.isLocalPurchase) {
         text
     } else {
         // No local record, so the subscription cannot be managed on this device.
-        text + "*"
+        "$text*"
     }
 }

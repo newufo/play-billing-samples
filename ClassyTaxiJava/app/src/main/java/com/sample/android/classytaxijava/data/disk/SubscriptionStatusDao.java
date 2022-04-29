@@ -16,15 +16,15 @@
 
 package com.sample.android.classytaxijava.data.disk;
 
+import com.sample.android.classytaxijava.data.SubscriptionStatus;
+
+import java.util.List;
+
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-
-import com.sample.android.classytaxijava.data.SubscriptionStatus;
-
-import java.util.List;
 
 @Dao
 interface SubscriptionStatusDao {

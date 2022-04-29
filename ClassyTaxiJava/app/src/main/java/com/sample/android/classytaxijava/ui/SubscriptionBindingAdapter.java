@@ -23,9 +23,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-import androidx.databinding.BindingAdapter;
-
 import com.bumptech.glide.Glide;
 import com.sample.android.classytaxijava.Constants;
 import com.sample.android.classytaxijava.R;
@@ -38,6 +35,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.BindingAdapter;
 
 // TODO(123725049): Improve data binding.
 public class SubscriptionBindingAdapter {
@@ -139,7 +139,7 @@ public class SubscriptionBindingAdapter {
                 if (BillingUtilities.isSubscriptionRestore(subscription)) {
                     Log.d(TAG, "restore VISIBLE");
                     restoreMsg.setVisibility(View.VISIBLE);
-                    String expiryDate = getHumanReadableDate(subscription.activeUntilMillisec);
+                    String expiryDate = getHumanReadableDate(subscription.getActiveUntilMillisec());
                     restoreMsg.setText(view.getResources()
                             .getString(R.string.restore_message_with_date, expiryDate));
                     paywallMsg.setVisibility(View.GONE); // Paywall gone.
@@ -150,7 +150,7 @@ public class SubscriptionBindingAdapter {
                     paywallMsg.setVisibility(View.GONE); // Paywall gone.
                 }
                 if (BillingUtilities.isTransferRequired(subscription)
-                        && TextUtils.equals(subscription.sku, Constants.BASIC_SKU)) {
+                        && TextUtils.equals(subscription.getSku(), Constants.BASIC_SKU)) {
                     Log.d(TAG, "transfer VISIBLE");
                     transferMsg.setVisibility(View.VISIBLE);
                     paywallMsg.setVisibility(View.GONE); // Paywall gone.
@@ -162,7 +162,7 @@ public class SubscriptionBindingAdapter {
                 }
                 if (BillingUtilities.isPaused(subscription)) {
                     Log.d(TAG, "account paused VISIBLE");
-                    String autoResumeDate = getHumanReadableDate(subscription.autoResumeTimeMillis);
+                    String autoResumeDate = getHumanReadableDate(subscription.getAutoResumeTimeMillis());
                     String text = view.getResources()
                             .getString(R.string.account_paused_message_string, autoResumeDate);
                     accountPausedMsgTxt.setText(text);
@@ -221,7 +221,7 @@ public class SubscriptionBindingAdapter {
                 if (BillingUtilities.isSubscriptionRestore(subscription)) {
                     Log.d(TAG, "restore VISIBLE");
                     restoreMsg.setVisibility(View.VISIBLE);
-                    String expiryDate = getHumanReadableDate(subscription.activeUntilMillisec);
+                    String expiryDate = getHumanReadableDate(subscription.getActiveUntilMillisec());
                     restoreMsg.setText(view.getResources()
                             .getString(R.string.restore_message_with_date, expiryDate));
                     paywallMsg.setVisibility(View.GONE); // Paywall gone.
@@ -232,7 +232,7 @@ public class SubscriptionBindingAdapter {
                     paywallMsg.setVisibility(View.GONE); // Paywall gone.
                 }
                 if (BillingUtilities.isTransferRequired(subscription)
-                        && TextUtils.equals(subscription.sku, Constants.PREMIUM_SKU)) {
+                        && TextUtils.equals(subscription.getSku(), Constants.PREMIUM_SKU)) {
                     Log.d(TAG, "transfer VISIBLE");
                     transferMsg.setVisibility(View.VISIBLE);
                     paywallMsg.setVisibility(View.GONE); // Paywall gone.
@@ -244,7 +244,7 @@ public class SubscriptionBindingAdapter {
                 }
                 if (BillingUtilities.isPaused(subscription)) {
                     Log.d(TAG, "account paused VISIBLE");
-                    String autoResumeDate = getHumanReadableDate(subscription.autoResumeTimeMillis);
+                    String autoResumeDate = getHumanReadableDate(subscription.getAutoResumeTimeMillis());
                     String text = view.getResources()
                             .getString(R.string.account_paused_message_string, autoResumeDate);
                     accountPausedMsgTxt.setText(text);
@@ -298,7 +298,7 @@ public class SubscriptionBindingAdapter {
         boolean premiumRequiresTransfer = false;
         if (subscriptions != null) {
             for (SubscriptionStatus subscription : subscriptions) {
-                String sku = subscription.sku;
+                String sku = subscription.getSku();
                 if (sku != null) {
                     if (Constants.BASIC_SKU.equals(sku)) {
                         basicBtn.setText(SubscriptionUtilities

@@ -53,7 +53,8 @@ class SubscriptionContent : Parcelable {
         dest.writeString(description)
     }
 
-    override fun toString() = "SubscriptionContent{title='$title', subtitle='$subtitle', description='$description'}"
+    override fun toString() =
+        "SubscriptionContent{title='$title', subtitle='$subtitle', description='$description'}"
 
     // Builder for Subscription object.
     class Builder {

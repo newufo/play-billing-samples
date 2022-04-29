@@ -18,34 +18,37 @@ package com.example.subscriptions.data.network.firebase
 
 import android.util.Log
 import com.example.subscriptions.SubApp
-import com.example.subscriptions.data.SubscriptionStatus
+import com.example.subscriptions.data.SubscriptionStatusList
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 
 class SubscriptionMessageService : FirebaseMessagingService() {
-
-    companion object {
-        private val TAG = SubscriptionMessageService::class.java.simpleName
-        private const val REMOTE_MESSAGE_SUBSCRIPTIONS_KEY = "currentStatus"
-    }
-
-    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
-        remoteMessage?.data?.let {
+    private val gson: Gson = GsonBuilder().create()
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        remoteMessage.data.let { it ->
             val data = it
             if (data.isNotEmpty()) {
-                var result: List<SubscriptionStatus>? = null
+                var result: SubscriptionStatusList? = null;
                 if (REMOTE_MESSAGE_SUBSCRIPTIONS_KEY in data) {
-                    result = data[REMOTE_MESSAGE_SUBSCRIPTIONS_KEY]?.let {
-                        SubscriptionStatus.listFromJsonString(it)
-                    }
+                    result = gson.fromJson(
+                        data[REMOTE_MESSAGE_SUBSCRIPTIONS_KEY],
+                        SubscriptionStatusList::class.java
+                    )
                 }
                 if (result == null) {
                     Log.e(TAG, "Invalid subscription data")
                 } else {
                     val app = application as SubApp
-                    app.repository.updateSubscriptionsFromNetwork(result)
+                    app.repository.updateSubscriptionsFromNetwork(result.subscriptions)
                 }
             }
         }
+    }
+
+    companion object {
+        private val TAG = SubscriptionMessageService::class.java.simpleName
+        private const val REMOTE_MESSAGE_SUBSCRIPTIONS_KEY = "currentStatus"
     }
 }

@@ -16,30 +16,26 @@
 
 package com.example.subscriptions.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.ViewModelProviders
 import com.android.billingclient.api.Purchase
 import com.example.subscriptions.Constants
 import com.example.subscriptions.R
 import com.example.subscriptions.SubApp
 import com.example.subscriptions.billing.BillingClientLifecycle
 import com.firebase.ui.auth.AuthUI
+import com.google.android.material.tabs.TabLayout
 import com.google.firebase.auth.FirebaseUser
-import kotlinx.android.synthetic.main.activity_main.container
-import kotlinx.android.synthetic.main.activity_main.tabs
-import kotlinx.android.synthetic.main.activity_main.toolbar
-
+import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  * [MainActivity] contains 3 [TabFragment] objects.
@@ -85,28 +81,29 @@ class MainActivity : AppCompatActivity() {
 
         authenticationViewModel = ViewModelProviders.of(this).get(FirebaseUserViewModel::class.java)
         billingViewModel = ViewModelProviders.of(this).get(BillingViewModel::class.java)
-        subscriptionViewModel = ViewModelProviders.of(this).get(SubscriptionStatusViewModel::class.java)
+        subscriptionViewModel =
+            ViewModelProviders.of(this).get(SubscriptionStatusViewModel::class.java)
 
         // Billing APIs are all handled in the this lifecycle observer.
         billingClientLifecycle = (application as SubApp).billingClientLifecycle
         lifecycle.addObserver(billingClientLifecycle)
 
         // Register purchases when they change.
-        billingClientLifecycle.purchaseUpdateEvent.observe(this, Observer {
+        billingClientLifecycle.purchaseUpdateEvent.observe(this, {
             it?.let {
                 registerPurchases(it)
             }
         })
 
         // Launch the billing flow when the user clicks a button to buy something.
-        billingViewModel.buyEvent.observe(this, Observer {
+        billingViewModel.buyEvent.observe(this, {
             it?.let {
                 billingClientLifecycle.launchBillingFlow(this, it)
             }
         })
 
         // Open the Play Store when this event is triggered.
-        billingViewModel.openPlayStoreSubscriptionsEvent.observe(this, Observer {
+        billingViewModel.openPlayStoreSubscriptionsEvent.observe(this, {
             Log.i(TAG, "Viewing subscriptions on the Google Play Store")
             val sku = it
             val url = if (sku == null) {
@@ -122,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         // Update authentication UI.
-        authenticationViewModel.firebaseUser.observe(this, Observer<FirebaseUser> {
+        authenticationViewModel.firebaseUser.observe(this, {
             invalidateOptionsMenu()
             if (it == null) {
                 triggerSignIn()
@@ -132,7 +129,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         // Update subscription information when user changes.
-        authenticationViewModel.userChangeEvent.observe(this, Observer {
+        authenticationViewModel.userChangeEvent.observe(this, {
             subscriptionViewModel.userChanged()
             billingClientLifecycle.purchaseUpdateEvent.value?.let {
                 registerPurchases(it)
@@ -150,8 +147,8 @@ class MainActivity : AppCompatActivity() {
             val purchaseToken = purchase.purchaseToken
             Log.d(TAG, "Register purchase with sku: $sku, token: $purchaseToken")
             subscriptionViewModel.registerSubscription(
-                    sku = sku,
-                    purchaseToken = purchaseToken
+                sku = sku,
+                purchaseToken = purchaseToken
             )
         }
     }
@@ -206,15 +203,16 @@ class MainActivity : AppCompatActivity() {
     private fun triggerSignIn() {
         Log.d(TAG, "Attempting SIGN-IN!")
         val providers = listOf(
-                AuthUI.IdpConfig.EmailBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build()
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build()
         )
         startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                RC_SIGN_IN)
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(),
+            RC_SIGN_IN
+        )
     }
 
     /**
@@ -255,15 +253,17 @@ class MainActivity : AppCompatActivity() {
      * A [FragmentPagerAdapter] that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
+    private class SectionsPagerAdapter(fragmentManager: FragmentManager) :
+        FragmentPagerAdapter(fragmentManager) {
         override fun getItem(position: Int): Fragment {
-            // getItem is called to instantiate the fragment for the given page.
             return TabFragment.newInstance(position)
         }
 
-        override fun getCount() = COUNT
 
+        override fun getCount(): Int {
+            return COUNT
+        }
     }
 
     fun commitgit(){

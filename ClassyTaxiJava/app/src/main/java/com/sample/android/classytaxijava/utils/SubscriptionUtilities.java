@@ -26,7 +26,7 @@ public class SubscriptionUtilities {
 
     /**
      * Return the resource string for the basic subscription button.
-     *
+     * <p>
      * Add an asterisk if the subscription is not local and might not be modifiable on this device.
      */
     public static String basicTextForSubscription(Resources res, SubscriptionStatus subscription) {
@@ -43,9 +43,9 @@ public class SubscriptionUtilities {
         } else if (BillingUtilities.isBasicContent(subscription)) {
             text = res.getString(R.string.subscription_option_basic_message_current);
         } else {
-            text =  res.getString(R.string.subscription_option_basic_message);
+            text = res.getString(R.string.subscription_option_basic_message);
         }
-        if (subscription.isLocalPurchase) {
+        if (subscription.isLocalPurchase()) {
             return text;
         } else {
             // No local record, so the subscription cannot be managed on this device.
@@ -55,7 +55,7 @@ public class SubscriptionUtilities {
 
     /**
      * Return the resource string for the premium subscription button.
-     *
+     * <p>
      * Add an asterisk if the subscription is not local and might not be modifiable on this device.
      */
     public static String premiumTextForSubscription(Resources res,
@@ -68,14 +68,14 @@ public class SubscriptionUtilities {
         } else if (BillingUtilities.isGracePeriod(subscription)) {
             text = res.getString(R.string.subscription_option_premium_message_grace_period);
         } else if (BillingUtilities.isSubscriptionRestore(subscription)) {
-            text =res.getString(R.string.subscription_option_premium_message_restore);
+            text = res.getString(R.string.subscription_option_premium_message_restore);
         } else if (BillingUtilities.isPremiumContent(subscription)) {
             text = res.getString(R.string.subscription_option_premium_message_current);
         } else {
             text = res.getString(R.string.subscription_option_premium_message);
         }
 
-        if (subscription.isLocalPurchase) {
+        if (subscription.isLocalPurchase()) {
             return text;
         } else {
             // No local record, so the subscription cannot be managed on this device.

@@ -16,51 +16,23 @@
 
 package com.example.subscriptions.ui
 
-import android.databinding.BindingAdapter
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.example.subscriptions.Constants
 import com.example.subscriptions.R
-import com.example.subscriptions.billing.isAccountHold
-import com.example.subscriptions.billing.isBasicContent
-import com.example.subscriptions.billing.isGracePeriod
-import com.example.subscriptions.billing.isPaused
-import com.example.subscriptions.billing.isPremiumContent
-import com.example.subscriptions.billing.isSubscriptionRestore
-import com.example.subscriptions.billing.isTransferRequired
+import com.example.subscriptions.billing.*
 import com.example.subscriptions.data.ContentResource
 import com.example.subscriptions.data.SubscriptionStatus
 import com.example.subscriptions.utils.basicTextForSubscription
 import com.example.subscriptions.utils.premiumTextForSubscription
-import kotlinx.android.synthetic.main.fragment_home.view.home_account_hold_message
-import kotlinx.android.synthetic.main.fragment_home.view.home_account_paused_message
-import kotlinx.android.synthetic.main.fragment_home.view.home_account_paused_message_text
-import kotlinx.android.synthetic.main.fragment_home.view.home_basic_image
-import kotlinx.android.synthetic.main.fragment_home.view.home_basic_message
-import kotlinx.android.synthetic.main.fragment_home.view.home_basic_text
-import kotlinx.android.synthetic.main.fragment_home.view.home_grace_period_message
-import kotlinx.android.synthetic.main.fragment_home.view.home_paywall_message
-import kotlinx.android.synthetic.main.fragment_home.view.home_restore_message
-import kotlinx.android.synthetic.main.fragment_home.view.home_transfer_message
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_account_hold_message
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_account_paused_message
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_account_paused_message_text
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_grace_period_message
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_paywall_message
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_premium_content
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_premium_image
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_premium_text
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_restore_message
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_transfer_message
-import kotlinx.android.synthetic.main.fragment_premium.view.premium_upgrade_message
-import kotlinx.android.synthetic.main.fragment_settings.view.settings_transfer_message
-import kotlinx.android.synthetic.main.fragment_settings.view.settings_transfer_message_text
-import kotlinx.android.synthetic.main.fragment_settings.view.subscription_option_basic_button
-import kotlinx.android.synthetic.main.fragment_settings.view.subscription_option_premium_button
+import kotlinx.android.synthetic.main.fragment_home.view.*
+import kotlinx.android.synthetic.main.fragment_premium.view.*
+import kotlinx.android.synthetic.main.fragment_settings.view.*
 import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.util.*
 
 private const val TAG = "BindingAdapter"
 
@@ -91,8 +63,8 @@ fun updateBasicContent(view: View, basicContent: ContentResource?) {
             Log.d(TAG, "Loading image for basic content: $url")
             visibility = View.VISIBLE
             Glide.with(view.context)
-                    .load(url)
-                    .into(this)
+                .load(url)
+                .into(this)
         }
         textView.run {
             text = view.resources.getString(R.string.basic_content_text)
@@ -123,8 +95,8 @@ fun updatePremiumContent(view: View, premiumContent: ContentResource?) {
             Log.d(TAG, "Loading image for premium content: $url")
             visibility = View.VISIBLE
             Glide.with(context)
-                    .load(url)
-                    .into(this)
+                .load(url)
+                .into(this)
         }
         textView.run {
             text = view.resources.getString(R.string.premium_content_text)
@@ -228,7 +200,7 @@ fun updatePremiumViews(view: View, subscriptions: List<SubscriptionStatus>?) {
 
     // The Upgrade button should appear if the user has a basic subscription, but does not
     // have a premium subscription. This variable keeps track of whether a premium subscription
-    // has been found when looking throug the list of subscriptions.
+    // has been found when looking through the list of subscriptions.
     var hasPremium = false
     // Update based on subscription information.
     subscriptions?.let {
@@ -299,27 +271,26 @@ fun updatePremiumViews(view: View, subscriptions: List<SubscriptionStatus>?) {
 fun updateSettingsViews(view: View, subscriptions: List<SubscriptionStatus>?) {
     // Set default button text: it might be overridden based on the subscription state.
     view.subscription_option_premium_button.text =
-            view.resources.getString(R.string.subscription_option_premium_message)
+        view.resources.getString(R.string.subscription_option_premium_message)
     view.subscription_option_basic_button.text =
-            view.resources.getString(R.string.subscription_option_basic_message)
+        view.resources.getString(R.string.subscription_option_basic_message)
     view.settings_transfer_message.visibility = View.GONE
     // Update based on subscription information.
     var basicRequiresTransfer = false
     var premiumRequiresTransfer = false
     subscriptions?.let {
         for (subscription in it) {
-            val sku = subscription.sku
-            when (sku) {
+            when (subscription.sku) {
                 Constants.BASIC_SKU -> {
                     view.subscription_option_basic_button.text =
-                            basicTextForSubscription(view.resources, subscription)
+                        basicTextForSubscription(view.resources, subscription)
                     if (isTransferRequired(subscription)) {
                         basicRequiresTransfer = true
                     }
                 }
                 Constants.PREMIUM_SKU -> {
                     view.subscription_option_premium_button.text =
-                            premiumTextForSubscription(view.resources, subscription)
+                        premiumTextForSubscription(view.resources, subscription)
                     if (isTransferRequired(subscription)) {
                         premiumRequiresTransfer = true
                     }
@@ -332,7 +303,8 @@ fun updateSettingsViews(view: View, subscriptions: List<SubscriptionStatus>?) {
             val basicName = view.resources.getString(R.string.basic_button_text)
             val premiumName = view.resources.getString(R.string.premium_button_text)
             view.resources.getString(
-                    R.string.transfer_message_with_two_skus, basicName, premiumName)
+                R.string.transfer_message_with_two_skus, basicName, premiumName
+            )
         }
         basicRequiresTransfer -> {
             val basicName = view.resources.getString(R.string.basic_button_text)
@@ -350,7 +322,7 @@ fun updateSettingsViews(view: View, subscriptions: List<SubscriptionStatus>?) {
         view.settings_transfer_message_text.text = message
     } else {
         view.settings_transfer_message_text.text =
-                view.resources.getString(R.string.transfer_message)
+            view.resources.getString(R.string.transfer_message)
     }
 }
 
@@ -360,11 +332,11 @@ fun updateSettingsViews(view: View, subscriptions: List<SubscriptionStatus>?) {
 fun getHumanReadableDate(milliSeconds: Long): String {
     val formatter = SimpleDateFormat.getDateInstance()
     val calendar = Calendar.getInstance()
-    calendar.setTimeInMillis(milliSeconds)
+    calendar.timeInMillis = milliSeconds
     if (milliSeconds == 0L) {
         Log.d(TAG, "Suspicious time: 0 milliseconds.")
     } else {
-        Log.d(TAG, "Milliseconds: ${milliSeconds}")
+        Log.d(TAG, "Milliseconds: $milliSeconds")
     }
-    return formatter.format(calendar.getTime())
+    return formatter.format(calendar.time)
 }

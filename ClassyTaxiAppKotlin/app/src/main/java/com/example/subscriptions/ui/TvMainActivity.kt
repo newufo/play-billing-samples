@@ -16,20 +16,18 @@
 
 package com.example.subscriptions.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
 import android.util.Log
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProviders
 import com.android.billingclient.api.Purchase
 import com.example.subscriptions.Constants
 import com.example.subscriptions.R
 import com.example.subscriptions.SubApp
 import com.example.subscriptions.billing.BillingClientLifecycle
 import com.firebase.ui.auth.AuthUI
-import com.google.firebase.auth.FirebaseUser
 
 /**
  * TvMainActivity contains a TvMainFragment that leverages Leanback UI to build an optimized
@@ -47,7 +45,7 @@ class TvMainActivity : FragmentActivity() {
 
     private lateinit var billingClientLifecycle: BillingClientLifecycle
 
-    lateinit var authenticationViewModel: FirebaseUserViewModel
+    private lateinit var authenticationViewModel: FirebaseUserViewModel
     private lateinit var billingViewModel: BillingViewModel
     private lateinit var subscriptionViewModel: SubscriptionStatusViewModel
 
@@ -57,28 +55,29 @@ class TvMainActivity : FragmentActivity() {
 
         authenticationViewModel = ViewModelProviders.of(this).get(FirebaseUserViewModel::class.java)
         billingViewModel = ViewModelProviders.of(this).get(BillingViewModel::class.java)
-        subscriptionViewModel = ViewModelProviders.of(this).get(SubscriptionStatusViewModel::class.java)
+        subscriptionViewModel =
+            ViewModelProviders.of(this).get(SubscriptionStatusViewModel::class.java)
 
         // Billing APIs are all handled in the this lifecycle observer.
         billingClientLifecycle = (application as SubApp).billingClientLifecycle
         lifecycle.addObserver(billingClientLifecycle)
 
         // Register purchases when they change.
-        billingClientLifecycle.purchaseUpdateEvent.observe(this, Observer {
+        billingClientLifecycle.purchaseUpdateEvent.observe(this, {
             it?.let {
                 registerPurchases(it)
             }
         })
 
         // Launch the billing flow when the user clicks a button to buy something.
-        billingViewModel.buyEvent.observe(this, Observer {
+        billingViewModel.buyEvent.observe(this, {
             it?.let {
                 billingClientLifecycle.launchBillingFlow(this, it)
             }
         })
 
         // Open the Play Store when this event is triggered.
-        billingViewModel.openPlayStoreSubscriptionsEvent.observe(this, Observer {
+        billingViewModel.openPlayStoreSubscriptionsEvent.observe(this, {
             Log.i(TAG, "Viewing subscriptions on the Google Play Store")
             val sku = it
             val url = if (sku == null) {
@@ -94,7 +93,7 @@ class TvMainActivity : FragmentActivity() {
         })
 
         // Update authentication UI.
-        authenticationViewModel.firebaseUser.observe(this, Observer<FirebaseUser> {
+        authenticationViewModel.firebaseUser.observe(this, {
             invalidateOptionsMenu()
             if (it == null) {
                 triggerSignIn()
@@ -104,7 +103,7 @@ class TvMainActivity : FragmentActivity() {
         })
 
         // Update subscription information when user changes.
-        authenticationViewModel.userChangeEvent.observe(this, Observer {
+        authenticationViewModel.userChangeEvent.observe(this, {
             subscriptionViewModel.userChanged()
             billingClientLifecycle.purchaseUpdateEvent.value?.let {
                 registerPurchases(it)
@@ -142,7 +141,8 @@ class TvMainActivity : FragmentActivity() {
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .build(),
-            RC_SIGN_IN)
+            RC_SIGN_IN
+        )
     }
 
     /**

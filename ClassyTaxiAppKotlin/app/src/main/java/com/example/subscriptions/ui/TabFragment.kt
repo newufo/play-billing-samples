@@ -16,14 +16,14 @@
 
 package com.example.subscriptions.ui
 
-import android.arch.lifecycle.ViewModelProviders
-import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import com.example.subscriptions.R
 import com.example.subscriptions.databinding.FragmentHomeBinding
 import com.example.subscriptions.databinding.FragmentPremiumBinding
@@ -35,21 +35,25 @@ import com.example.subscriptions.databinding.FragmentSettingsBinding
 class TabFragment : Fragment() {
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
-        val billingViewModel = ViewModelProviders.of(requireActivity()).get(BillingViewModel::class.java)
-        val subscriptionViewModel = ViewModelProviders.of(requireActivity()).get(SubscriptionStatusViewModel::class.java)
+        val billingViewModel =
+            ViewModelProviders.of(requireActivity()).get(BillingViewModel::class.java)
+        val subscriptionViewModel =
+            ViewModelProviders.of(requireActivity()).get(SubscriptionStatusViewModel::class.java)
 
-        val section = arguments?.getInt(ARG_SECTION_NUMBER)
-        return when (section) {
+        return when (arguments?.getInt(ARG_SECTION_NUMBER)) {
             MainActivity.HOME_PAGER_INDEX -> createHomeView(
-                    inflater, container, billingViewModel, subscriptionViewModel)
+                inflater, container, billingViewModel, subscriptionViewModel
+            )
             MainActivity.PREMIUM_PAGER_INDEX -> createPremiumView(
-                    inflater, container, billingViewModel, subscriptionViewModel)
+                inflater, container, billingViewModel, subscriptionViewModel
+            )
             MainActivity.SETTINGS_PAGER_INDEX -> createSettingsView(
-                    inflater, container, billingViewModel, subscriptionViewModel)
+                inflater, container, billingViewModel, subscriptionViewModel
+            )
             else -> {
                 Log.e(TAG, "Unrecognized fragment index")
                 createHomeView(inflater, container, billingViewModel, subscriptionViewModel)
@@ -61,15 +65,15 @@ class TabFragment : Fragment() {
      * Inflate the UI view for the Home tab and bind to the ViewModel.
      */
     private fun createHomeView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            billingViewModel: BillingViewModel,
-            subscriptionViewModel: SubscriptionStatusViewModel
-    ) : View {
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        billingViewModel: BillingViewModel,
+        subscriptionViewModel: SubscriptionStatusViewModel
+    ): View {
         // Data binding with a ViewModel.
         val fragmentBinding: FragmentHomeBinding =
-                DataBindingUtil.inflate(inflater, R.layout.fragment_home, container,false)
-        fragmentBinding.setLifecycleOwner(this)
+            DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
+        fragmentBinding.lifecycleOwner = this
         fragmentBinding.billingViewModel = billingViewModel
         fragmentBinding.subscriptionViewModel = subscriptionViewModel
         return fragmentBinding.root
@@ -79,16 +83,17 @@ class TabFragment : Fragment() {
      * Inflate the UI view for the Premium tab and bind to the ViewModel.
      */
     private fun createPremiumView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            billingViewModel: BillingViewModel,
-            subscriptionViewModel: SubscriptionStatusViewModel
-    ) : View {
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        billingViewModel: BillingViewModel,
+        subscriptionViewModel: SubscriptionStatusViewModel
+    ): View {
         // Data binding with a ViewModel.
         val fragmentBinding: FragmentPremiumBinding =
-                DataBindingUtil.inflate(
-                        inflater, R.layout.fragment_premium, container,false)
-        fragmentBinding.setLifecycleOwner(this)
+            DataBindingUtil.inflate(
+                inflater, R.layout.fragment_premium, container, false
+            )
+        fragmentBinding.lifecycleOwner = this
         fragmentBinding.billingViewModel = billingViewModel
         fragmentBinding.subscriptionViewModel = subscriptionViewModel
         return fragmentBinding.root
@@ -98,16 +103,17 @@ class TabFragment : Fragment() {
      * Inflate the UI view for the Settings tab and bind to the ViewModel.
      */
     private fun createSettingsView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            billingViewModel: BillingViewModel,
-            subscriptionViewModel: SubscriptionStatusViewModel
-    ) : View {
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        billingViewModel: BillingViewModel,
+        subscriptionViewModel: SubscriptionStatusViewModel
+    ): View {
         // Data binding with a ViewModel.
         val fragmentBinding: FragmentSettingsBinding =
-                DataBindingUtil.inflate(
-                        inflater, R.layout.fragment_settings, container, false)
-        fragmentBinding.setLifecycleOwner(this)
+            DataBindingUtil.inflate(
+                inflater, R.layout.fragment_settings, container, false
+            )
+        fragmentBinding.lifecycleOwner = this
         fragmentBinding.billingViewModel = billingViewModel
         fragmentBinding.subscriptionViewModel = subscriptionViewModel
         return fragmentBinding.root

@@ -16,10 +16,6 @@
 
 package com.sample.android.classytaxijava.data.network.firebase;
 
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import com.sample.android.classytaxijava.Constants;
 import com.sample.android.classytaxijava.billing.BillingUtilities;
 import com.sample.android.classytaxijava.data.ContentResource;
@@ -28,6 +24,10 @@ import com.sample.android.classytaxijava.data.SubscriptionStatus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 /**
  * Fake implementation of ServerFunctions
@@ -170,10 +170,10 @@ public class FakeServerFunctions implements ServerFunctions {
     @Override
     public void transferSubscription(String sku, String purchaseToken) {
         SubscriptionStatus subscription = createFakeBasicSubscription();
-        subscription.sku = sku;
-        subscription.purchaseToken = purchaseToken;
-        subscription.subAlreadyOwned = false;
-        subscription.isEntitlementActive = true;
+        subscription.setSku(sku);
+        subscription.setPurchaseToken(purchaseToken);
+        subscription.setSubAlreadyOwned(false);
+        subscription.setEntitlementActive(true);
         subscriptions.postValue(Collections.singletonList(subscription));
     }
 
@@ -181,13 +181,15 @@ public class FakeServerFunctions implements ServerFunctions {
      * Register Instance ID when the user signs in or the token is refreshed.
      */
     @Override
-    public void registerInstanceId(String instanceId) { }
+    public void registerInstanceId(String instanceId) {
+    }
 
     /**
      * Unregister when the user signs out.
      */
     @Override
-    public void unregisterInstanceId(String instanceId) { }
+    public void unregisterInstanceId(String instanceId) {
+    }
 
     /**
      * Create a local record of a subscription that is already owned by someone else.
@@ -197,10 +199,10 @@ public class FakeServerFunctions implements ServerFunctions {
             String sku,
             String purchaseToken) {
         SubscriptionStatus subscriptionStatus = new SubscriptionStatus();
-        subscriptionStatus.sku = sku;
-        subscriptionStatus.purchaseToken = purchaseToken;
-        subscriptionStatus.isEntitlementActive = false;
-        subscriptionStatus.subAlreadyOwned = true;
+        subscriptionStatus.setSku(sku);
+        subscriptionStatus.setPurchaseToken(purchaseToken);
+        subscriptionStatus.setEntitlementActive(false);
+        subscriptionStatus.setSubAlreadyOwned(true);
 
         return subscriptionStatus;
     }
@@ -248,97 +250,97 @@ public class FakeServerFunctions implements ServerFunctions {
 
     private SubscriptionStatus createFakeBasicSubscription() {
         SubscriptionStatus subscription = new SubscriptionStatus();
-        subscription.isEntitlementActive = true;
-        subscription.willRenew = true;
-        subscription.sku = Constants.BASIC_SKU;
-        subscription.isAccountHold = false;
-        subscription.isGracePeriod = false;
-        subscription.purchaseToken = "FAKE_PURCHASE_TOKEN";
-        subscription.subAlreadyOwned = false;
+        subscription.setEntitlementActive(true);
+        subscription.setWillRenew(true);
+        subscription.setSku(Constants.BASIC_SKU);
+        subscription.setAccountHold(false);
+        subscription.setGracePeriod(false);
+        subscription.setPurchaseToken("FAKE_PURCHASE_TOKEN");
+        subscription.setSubAlreadyOwned(false);
         return subscription;
     }
 
     private SubscriptionStatus createFakePremiumSubscription() {
         SubscriptionStatus subscription = new SubscriptionStatus();
-        subscription.isEntitlementActive = true;
-        subscription.willRenew = true;
-        subscription.sku = Constants.PREMIUM_SKU;
-        subscription.isAccountHold = false;
-        subscription.isGracePeriod = false;
-        subscription.purchaseToken = "FAKE_PURCHASE_TOKEN";
-        subscription.subAlreadyOwned = false;
+        subscription.setEntitlementActive(true);
+        subscription.setWillRenew(true);
+        subscription.setSku(Constants.PREMIUM_SKU);
+        subscription.setAccountHold(false);
+        subscription.setGracePeriod(false);
+        subscription.setPurchaseToken("FAKE_PURCHASE_TOKEN");
+        subscription.setSubAlreadyOwned(false);
         return subscription;
     }
 
     private SubscriptionStatus createFakeAccountHoldSubscription() {
         SubscriptionStatus subscription = new SubscriptionStatus();
-        subscription.isEntitlementActive = false;
-        subscription.willRenew = true;
-        subscription.sku = Constants.PREMIUM_SKU;
-        subscription.isAccountHold = true;
-        subscription.isGracePeriod = false;
-        subscription.purchaseToken = "FAKE_PURCHASE_TOKEN";
-        subscription.subAlreadyOwned = false;
+        subscription.setEntitlementActive(false);
+        subscription.setWillRenew(true);
+        subscription.setSku(Constants.PREMIUM_SKU);
+        subscription.setAccountHold(true);
+        subscription.setGracePeriod(false);
+        subscription.setPurchaseToken("FAKE_PURCHASE_TOKEN");
+        subscription.setSubAlreadyOwned(false);
         return subscription;
     }
 
     private SubscriptionStatus createFakeAccountPausedSubscription() {
         SubscriptionStatus subscription = new SubscriptionStatus();
-        subscription.isEntitlementActive = false;
-        subscription.willRenew = true;
-        subscription.sku = Constants.PREMIUM_SKU;
-        subscription.isPaused = true;
-        subscription.isGracePeriod = false;
-        subscription.purchaseToken = "FAKE_PURCHASE_TOKEN";
-        subscription.subAlreadyOwned = false;
+        subscription.setEntitlementActive(false);
+        subscription.setWillRenew(true);
+        subscription.setSku(Constants.PREMIUM_SKU);
+        subscription.setPaused(true);
+        subscription.setGracePeriod(false);
+        subscription.setPurchaseToken("FAKE_PURCHASE_TOKEN");
+        subscription.setSubAlreadyOwned(false);
         return subscription;
     }
 
     private SubscriptionStatus createFakeGracePeriodSubscription() {
         SubscriptionStatus subscription = new SubscriptionStatus();
-        subscription.isEntitlementActive = true;
-        subscription.willRenew = true;
-        subscription.sku = Constants.BASIC_SKU;
-        subscription.isAccountHold = false;
-        subscription.isGracePeriod = true;
-        subscription.purchaseToken = "FAKE_PURCHASE_TOKEN";
-        subscription.subAlreadyOwned = false;
+        subscription.setEntitlementActive(true);
+        subscription.setWillRenew(true);
+        subscription.setSku(Constants.BASIC_SKU);
+        subscription.setAccountHold(false);
+        subscription.setGracePeriod(true);
+        subscription.setPurchaseToken("FAKE_PURCHASE_TOKEN");
+        subscription.setSubAlreadyOwned(false);
         return subscription;
     }
 
     private SubscriptionStatus createFakeAlreadyOwnedSubscription() {
         SubscriptionStatus subscription = new SubscriptionStatus();
-        subscription.isEntitlementActive = false;
-        subscription.willRenew = true;
-        subscription.sku = Constants.BASIC_SKU;
-        subscription.isAccountHold = false;
-        subscription.isGracePeriod = false;
-        subscription.purchaseToken = "FAKE_PURCHASE_TOKEN";
-        subscription.subAlreadyOwned = true;
+        subscription.setEntitlementActive(false);
+        subscription.setWillRenew(true);
+        subscription.setSku(Constants.BASIC_SKU);
+        subscription.setAccountHold(false);
+        subscription.setGracePeriod(false);
+        subscription.setPurchaseToken("FAKE_PURCHASE_TOKEN");
+        subscription.setSubAlreadyOwned(true);
         return subscription;
     }
 
     private SubscriptionStatus createFakeCanceledBasicSubscription() {
         SubscriptionStatus subscription = new SubscriptionStatus();
-        subscription.isEntitlementActive = true;
-        subscription.willRenew = false;
-        subscription.sku = Constants.BASIC_SKU;
-        subscription.isAccountHold = false;
-        subscription.isGracePeriod = false;
-        subscription.purchaseToken = "FAKE_PURCHASE_TOKEN";
-        subscription.subAlreadyOwned = false;
+        subscription.setEntitlementActive(true);
+        subscription.setWillRenew(false);
+        subscription.setSku(Constants.BASIC_SKU);
+        subscription.setAccountHold(false);
+        subscription.setGracePeriod(false);
+        subscription.setPurchaseToken("FAKE_PURCHASE_TOKEN");
+        subscription.setSubAlreadyOwned(false);
         return subscription;
     }
 
     private SubscriptionStatus createFakeCanceledPremiumSubscription() {
         SubscriptionStatus subscription = new SubscriptionStatus();
-        subscription.isEntitlementActive = true;
-        subscription.willRenew = false;
-        subscription.sku = Constants.PREMIUM_SKU;
-        subscription.isAccountHold = false;
-        subscription.isGracePeriod = false;
-        subscription.purchaseToken = "FAKE_PURCHASE_TOKEN";
-        subscription.subAlreadyOwned = false;
+        subscription.setEntitlementActive(true);
+        subscription.setWillRenew(false);
+        subscription.setSku(Constants.PREMIUM_SKU);
+        subscription.setAccountHold(false);
+        subscription.setGracePeriod(false);
+        subscription.setPurchaseToken("FAKE_PURCHASE_TOKEN");
+        subscription.setSubAlreadyOwned(false);
         return subscription;
     }
 }

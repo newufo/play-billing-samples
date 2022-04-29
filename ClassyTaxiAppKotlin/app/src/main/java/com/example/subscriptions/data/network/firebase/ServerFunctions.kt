@@ -16,9 +16,10 @@
 
 package com.example.subscriptions.data.network.firebase
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import com.example.subscriptions.data.ContentResource
 import com.example.subscriptions.data.SubscriptionStatus
+import com.example.subscriptions.data.network.retrofit.ServerFunctionsImpl
 
 /**
  * Interface to perform the Firebase Function calls and expose the results with [subscriptions].

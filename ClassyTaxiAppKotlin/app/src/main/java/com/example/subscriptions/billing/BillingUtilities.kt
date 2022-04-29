@@ -28,8 +28,6 @@ fun subscriptionForSku(subscriptions: List<SubscriptionStatus>?, sku: String): S
         for (subscription in it) {
             if (subscription.sku == sku) {
                 return subscription
-            } else {
-                // Do nothing.
             }
         }
     }
@@ -45,8 +43,6 @@ fun purchaseForSku(purchases: List<Purchase>?, sku: String): Purchase? {
         for (purchase in it) {
             if (purchase.skus[0] == sku) {
                 return purchase
-            } else {
-                // Do nothing.
             }
         }
     }

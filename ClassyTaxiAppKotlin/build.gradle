@@ -44,30 +44,30 @@ ext {
 
     // Android version information.
     androidMinimumSdkVersion = 17
-    androidTargetSdkVersion = 29
-    androidCompileSdkVersion = 29
+    androidTargetSdkVersion = 30
+    androidCompileSdkVersion = 30
 }
 
 buildscript {
     // Library versions.
-    ext.archCoreVersion = '1.1.1'
-    ext.archLifecycleVersion = '1.1.1'
-    ext.archRoomVersion = '1.1.1'
+    ext.androidXRoomVersion = '2.3.0'
     ext.billingVersion = '4.0.0'
-    ext.firebaseAuthVersion = '12.0.1' // TODO: Update to 16.1.0 or newer.
-    ext.firebaseCoreVersion = '12.0.1' // TODO: Update to 16.0.6 or newer.
-    ext.firebaseFunctionsVersion = '12.0.1' // TODO: Update to 16.1.3 or newer.
-    ext.firebaseMessagingVersion = '12.0.1' // TODO: Update to 17.3.4 or newer.
-    ext.firebaseUiVersion = '3.3.0'
-    ext.glideVersion = '4.4.0'
-    ext.gsonVersion= '2.8.2'
+    ext.firebaseUiVersion = '8.0.0'
+    ext.glideVersion = '4.11.0'
+    ext.gsonVersion = '2.8.6'
     ext.jsonVersion = '20140107'
     ext.supportVersion = '28.0.0'
+    ext.firebaseBomVersion = '28.4.1'
+    ext.playServicesVersion = '19.2.0'
+    ext.materialUiVersion = '1.4.0'
+    ext.retrofitSuiteVersion = '2.9.0'
+    ext.fragmentVersion = '28.0.0'
 
     // Tools versions.
-    ext.gradleGoogleVersion = '3.2.0'
-    ext.gradleToolsVersion = '3.4.1'
-    ext.kotlinVersion = '1.3.11'
+    ext.gradleGoogleVersion = '4.3.0'
+    ext.gradleToolsVersion = '7.0.2'
+    ext.kotlinVersion = '1.6.10'
+    ext.multidex_version = "2.0.1"
 
     // jaxb versions for compiling for JDK9+
     ext.jdk9DepsVersion = '1.0'
@@ -76,11 +76,12 @@ buildscript {
     ext.jaxbImpl = '2.3.2'
 
     // Testing versions.
-    ext.jUnitVersion = '4.12'
+    ext.jUnitVersion = '4.13.1'
 
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$gradleToolsVersion"
@@ -96,6 +97,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
 }
 

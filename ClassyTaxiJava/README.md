@@ -5,8 +5,10 @@ This is the ClassyTaxi Java Android app to buy subscriptions.
 
 Classy Taxi is an end-to-end project that highlights subscription features on Google Play Billing,
 such as Real-time Developer Notifications, account hold, grace period, and more. The code has 3
-major components: an **Android app** to buy subscriptions, a **[Node.js server](https://github.com/android/play-billing-samples/tree/master/ClassyTaxiServer)**
-to manage subscriptions, and a read-only **[web client](https://github.com/android/play-billing-samples/tree/master/ClassyTaxiServer/webapp)**
+major components: an **Android app** to buy subscriptions,
+a **[Node.js server](https://github.com/android/play-billing-samples/tree/master/ClassyTaxiServer)**
+to manage subscriptions, and a
+read-only **[web client](https://github.com/android/play-billing-samples/tree/master/ClassyTaxiServer/webapp)**
 to access the subscriptions on multiple platforms.
 
 ![Classy Taxi animation GIF showing subscription features of Google Play Billing](classy_taxi_animation.gif)
@@ -18,14 +20,14 @@ to access the subscriptions on multiple platforms.
 # What do I need?
 
 * A [Google Play Developer Account](https://developer.android.com/distribute/console/) to publish
-the app and manage subscriptions
+  the app and manage subscriptions
 
 * A [Firebase project](https://firebase.google.com/) to deploy the server implementation on
-[Cloud Functions for Firebase](https://firebase.google.com/docs/functions/), enable sign-in, and
-support Firebase Cloud Messaging
+  [Cloud Functions for Firebase](https://firebase.google.com/docs/functions/), enable sign-in, and
+  support Firebase Cloud Messaging
 
     * Note: The Firebase project has a corresponding Google Cloud Console project that will be
-    configured for Real-time Developer Notifications
+      configured for Real-time Developer Notifications
 
 * A [Google Cloud Console project](https://developers.google.com/android-publisher/getting_started#linking_your_api_project)
 to use the Google Play APIs
@@ -49,14 +51,16 @@ to use the Google Play APIs
 1. **Upload a release-build APK** signed with release keys to Google Play
 
     * To use Google Play Billing APIs you need an APK to published to a track on Google Play
-    (internal test, alpha, beta, or production track)
+      (internal testing, closed testing, open testing, or production track)
 
         * [https://support.google.com/googleplay/android-developer/answer/3131213](https://support.google.com/googleplay/android-developer/answer/3131213)
 
 1. Complete the **Firebase Project Setup**
 
     * If you skipped the Firebase configuration step for the SHA1 fingerprint, you can complete that
-     step now by rebuilding with the updated `google-services.json`
+      step now by rebuilding with the updated `google-services.json`
+    * If you are using Google Play Signing, you can get the SHA1 on the Google Play Console under
+      **Setup > App Integrity**
 
 1. Start the **Play Developer Console Setup**
 
@@ -65,17 +69,17 @@ to use the Google Play APIs
 1. Optional: Test with a debug APK and debug signatures on your device
 
     * Add your test Google account to the License Testing section of your Google Play Developer
-    Account
+      Account
 
-        * [https://developer.android.com/google/play/billing/billing_testing#testing-purchases](https://developer.android.com/google/play/billing/billing_testing#testing-purchases)
-
-        * [https://developer.android.com/google/play/billing/billing_testing#testing-subscriptions](https://developer.android.com/google/play/billing/billing_testing#testing-subscriptions)
-
+        * [https://developer.android.com/google/play/billing/billing_testing#one-time](https://developer.android.com/google/play/billing/billing_testing#one-time)
+        
+        * [https://developer.android.com/google/play/billing/billing_testing#subs](https://developer.android.com/google/play/billing/billing_testing#subs)
+        
     * **License Testing accounts can use the Google Play Billing APIs with debug builds and debug
-    signatures as long as the package name matches the APK in the Play Store**
+      signatures as long as the package name matches the APK in the Play Store**
 
     * If the Google account is not enabled for License Testing, Google Play Billing APIs will only
-    work if the app is installed by Google Play
+      work if the app is installed by Google Play
 
         * **Sideloaded APKs will not work for users that are not enabled for License Testing**
 
@@ -84,14 +88,16 @@ to use the Google Play APIs
     * Link your Google Cloud Console project to the Google Play Developer Account
 
         * Note: A Google Play Console account can only be linked to a single Google Cloud Console
-        project, so **we recommend creating a dedicated Google Cloud Console project that is shared
-        by all apps in your Google Play Console**
+          project, so **we recommend creating a dedicated Google Cloud Console project that is
+          shared by all apps in your Google Play Console**
 
         * Configure a service account in Google Cloud Console
 
 1. Complete **Real-time Developer Notifications Setup**
 
-11. **Deploy [Backend Server](https://github.com/android/play-billing-samples/tree/master/ClassyTaxiServer)**
+1. **Deploy [Backend Server](https://github.com/android/play-billing-samples/tree/master/ClassyTaxiServer)**
+
+1. Complete the **Regenerate and re-upload App** step
 
 # Firebase Project Setup
 
@@ -105,8 +111,9 @@ This sample application uses Firebase (Auth, Notifications, Firestore).
 
 1. In the project, go to Build > Functions> Get started. Enable Functions.
 
-1. In the project, go to Build > Authentication > Get started > Sign-in method. Enable **Email/Password** and **Google**
- as Sign-in providers
+1. In the project, go to Build > Authentication > Get started > Sign-in method. Enable **
+   Email/Password** and **Google**
+   as Sign-in providers
 
 1. Add your Android app to the project
 
@@ -116,22 +123,20 @@ This sample application uses Firebase (Auth, Notifications, Firestore).
 
     * [https://firebase.google.com/docs/auth/android/firebaseui#before_you_begin](https://firebase.google.com/docs/auth/android/firebaseui#before_you_begin)
 
-    * Specify your app's SHA-1 fingerprint from the [Settings page](https://console.firebase.google.com/project/_/settings/general/)
-    of the Firebase console
+    * Specify your app's SHA-1 fingerprint from
+      the [Settings page](https://console.firebase.google.com/project/_/settings/general/)
+      of the Firebase console
 
     * See [Authenticating Your Client](https://developers.google.com/android/guides/client-auth)
-    for details on how to get your app's SHA-1 fingerprint
+      for details on how to get your app's SHA-1 fingerprint
 
     * If you do not know your SHA1 fingerprint yet, please skip it for now and return after you have
-     signed your APK later
-
-1. Download the generated `google-services.json` and move it to your app module directory
-
-    * `{project_folder}/app/google-services.json`
+      signed your APK later
+      
 
 # Android App Setup
 
-In order to use the Google Play Billing APIs, you must pick a unique package name and upload a
+To use the Google Play Billing APIs, you must pick a unique package name and upload a
 [signed release APK](https://developer.android.com/studio/publish/app-signing.html) to Google Play.
 The Android app will only build after you include a compatible `google-services.json` file from the
 Firebase configuration.
@@ -147,14 +152,18 @@ Firebase configuration.
     * `{project_folder}/gradle.properties`
 
 1. Confirm that you have the latest `google-services.json` from the Firebase configuration in your
-app directory
+   app directory
 
     * `{project_folder}/app/google-services.json`
 
 1. Optional: If you want to test the UI without the Firebase server, change this variable in
-`Constants.kt`
+   `Constants.kt`
 
     * `USE_FAKE_SERVER = true`
+
+1. Remove the google-services.json configuration file located in the app’s debug folder.
+
+    * `{project_folder}/app/src/debug/`
 
 1. Rebuild the Gradle project verify that there are no errors
 
@@ -163,7 +172,10 @@ app directory
     * [https://developer.android.com/studio/publish/app-signing#sign-apk](https://developer.android.com/studio/publish/app-signing#sign-apk)
 
 1. If you skipped the Firebase configuration step for the SHA1 fingerprint, you can complete that
-step now, and rebuild with the updated `google-services.json`
+   step now, and rebuild with the updated `google-services.json`
+
+    * If you are using Google Play Signing, you can get the SHA1 on the Google Play Console under
+      **Setup > App Integrity**
 
 # Play Developer Console Setup
 
@@ -171,7 +183,7 @@ step now, and rebuild with the updated `google-services.json`
 
     * [https://play.google.com/console](https://play.google.com/console)
 
-1. Upload and publish the release APK to the Internal Test, Alpha, Beta, or Production channel
+1. Upload and publish the release APK to the Internal testing, Closed testing, Open testing, or Production track
 
     * [https://support.google.com/googleplay/android-developer/answer/113469](https://support.google.com/googleplay/android-developer/answer/113469)
 
@@ -179,7 +191,10 @@ step now, and rebuild with the updated `google-services.json`
 
     * [https://support.google.com/googleplay/android-developer/answer/140504](https://support.google.com/googleplay/android-developer/answer/140504)
 
-    * The Android app `Constants.kt` contains 2 SKUs: `"basic_subscription"` and `"premium_subscription"`.
+    * The Android app `Constants.kt` contains 2 SKUs: `"basic_subscription"`
+      and `"premium_subscription"`.
+
+    * Use the 2 SKUs as the Product ID when creating the subscription products
 
     * Write down your product IDs (SKUs) so you can configure your backend server
 
@@ -194,26 +209,31 @@ step now, and rebuild with the updated `google-services.json`
         * [https://developers.google.com/android-publisher/getting_started#using_a_service_account](https://developers.google.com/android-publisher/getting_started#using_a_service_account)
 
     * Create a new private key for your service account, and download it in JSON format with the
-    filename `service-account.json`
+      filename `service-account.json`
 
-    * Copy `service-account.json` to
+    * Copy `service-account.json` to the ClassyTaxiServer folder
 
-        *  `{project_folder}/ClassyTaxiServer/src/service-account.json`
+        * `{project_folder}/ClassyTaxiServer/src/service-account.json`
 
-    * Provide the necessary **Account permission** to the service account email address [https://play.google.com/console/developers/users-and-permissions](https://play.google.com/console/developers/users-and-permissions)
+    * Provide the necessary **Account permission** to the service account email
+      address [https://play.google.com/console/developers/users-and-permissions](https://play.google.com/console/developers/users-and-permissions)
 
         * **View financial data, orders, and cancellation survey responses**
 
         * **Manage orders and subscriptions**
 
-1. Recommended: Create a license test account to [test subscriptions quickly](https://android-developers.googleblog.com/2018/01/faster-renewals-for-test-subscriptions.html) without spending money
+        * **View app information and download bulk reports (read-only)**
+
+1. Recommended: Create a license test account
+   to [test subscriptions quickly](https://android-developers.googleblog.com/2018/01/faster-renewals-for-test-subscriptions.html)
+   without spending money
 
     * [https://developer.android.com/google/play/billing/billing_testing.html#test-purchases-sandbox](https://developer.android.com/google/play/billing/billing_testing.html#test-purchases-sandbox)
 
 # Real-time Developer Notifications Setup
 
-1. Use the Google Cloud Console project that corresponds to the Firebase project to enable Cloud
-PubSub
+1. Use the Google Cloud Console project that corresponds to the Firebase project to
+   enable [Cloud PubSub](https://console.cloud.google.com/cloudpubsub?tutorial=pubsub_quickstart&_ga=2.248010692.2130588993.1635461725-2065840594.1635461725)
 
     * [https://developer.android.com/google/play/billing/realtime_developer_notifications#initial_cloud_pubsub_setup](https://developer.android.com/google/play/billing/realtime_developer_notifications#initial_cloud_pubsub_setup)
 
@@ -223,65 +243,98 @@ PubSub
 
         * `google-play-developer-notifications@system.gserviceaccount.com`
 
-    * In the Permissions section, select **Add Member** and grant the Role **Pub/Sub Publisher** to the Google Play service account
+    * In the Permissions section, select **Add Member** and grant the Role **Pub/Sub Publisher** to
+      the Google Play service account
 
         * Note: Make sure to set the role as **Publisher** so that Google Play can publish updates
-        to your project
+          to your project
 
     * Copy the **Topic name** so that you can add it to the Google Play Console
 
 1. Configure the Google Play Console to allow your backend to receive notifications from Play Store
- for subscription purchase changes
+   for subscription purchase changes
 
     * [https://developer.android.com/google/play/billing/getting-ready#enable-rtdn](https://developer.android.com/google/play/billing/getting-ready#enable-rtdn)
 
     * Your real-time developer notifications **Topic name** should be in this format
 
-        *  `projects/{your_firebase_project_id}/topics/play-subs`
+        * `projects/{your_firebase_project_id}/topics/play-subs`
 
 # Deploy Backend Server
 
 Follow the steps to deploy the backend server here:
-[here](https://github.com/android/play-billing-samples/tree/master/ClassyTaxiServer).
+[here](https://github.com/android/play-billing-samples/tree/master/ClassyTaxiServer). Note: Please
+take a note of the endpoint server URL when your functions are successfully deployed. It should be
+in this example’s format: “https://us-central1-project_name.cloudfunctions.net”
+
+# Regenerate and re-upload App
+
+1. Open the app module build.gradle file
+
+1. Update the **SERVER_URL** in the buildtype DSL object for the debug and release builds
+
+```
+buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "SERVER_URL", "\"https://us-central1-project_name.cloudfunctions.net\"")
+        }
+        debug {
+            minifyEnabled false
+            buildConfigField("String", "SERVER_URL", "\"https://us-central1-project_name.cloudfunctions.net\"")
+        }
+    }
+```
+
+1. Re-generate a new app bundle and upload it to a new Play store release
 
 # Troubleshoot common issues
 
 * Q: There is a warning "*Billing account not configured. External network is not accessible and
-quotas are severely limited. Configure billing account to remove these restrictions*" in my Cloud
-Functions log.
+  quotas are severely limited. Configure billing account to remove these restrictions*" in my Cloud
+  Functions log.
 
-  * A: You can safely ignore the warning and stay use the Firebase Spark Plan because the sample
-  only accesses the Google network.
+    * A: You can safely ignore the warning and stay use the Firebase Spark Plan because the sample
+      only accesses the Google network.
 
-* Q: The logs on your server show an error: "*Unexpected error when querying Google Play Developer API. Please check if you use a correct service account*".
+* Q: The logs on your server show an error: "*Unexpected error when querying Google Play Developer
+  API. Please check if you use a correct service account*".
 
-  * A: Check that the `service-account.json` that you deployed to your server
-    matches the service account email that is registered in the
-    Google Play Console
-    [https://play.google.com/console/u/0/developers/api-access](https://play.google.com/console/u/0/developers/api-access).
+    * A: Check that the `service-account.json` that you deployed to your server matches the service
+      account email that is registered in the Google Play Console
+      [https://play.google.com/console/u/0/developers/api-access](https://play.google.com/console/u/0/developers/api-access)
+      .
 
 * Q: "*The current user has insufficient permissions to perform the requested operation.*"
 
-  * A: Check that the the service account email that is registered in the
-    Google Play Console has the necessary **Account permission** [https://play.google.com/console/developers/users-and-permissions](https://play.google.com/console/developers/users-and-permissions)
-      * **View financial data, orders, and cancellation survey responses**
-      * **Manage orders and subscriptions**
+    * A: Check that the the service account email that is registered in the Google Play Console has
+      the necessary **Account
+      permission** [https://play.google.com/console/developers/users-and-permissions](https://play.google.com/console/developers/users-and-permissions)
+        * **View financial data, orders, and cancellation survey responses**
+        * **Manage orders and subscriptions**
 
-* Q: Android build: `Execution failed for task :app:processDebugGoogleServices. File
-google-services.json is missing. The Google Services Plugin cannot function without it`.
+* Q: Android
+  build: `Execution failed for task :app:processDebugGoogleServices. File google-services.json is missing. The Google Services Plugin cannot function without it`
+  .
 
     * A: Download `google-services.json` from the Firebase console.
 
-* Q: Android build: `No matching client found for package name com.example.subscriptions.classytaxi'`.
+* Q: Android
+  build: `No matching client found for package name com.example.subscriptions.classytaxi'`.
 
     * A: Change the `androidApplicationId` in `gradle.properties` and download the updated
-    `google-services.json` from your Firebase project configuration.
+      `google-services.json` from your Firebase project configuration.
 
 * Q: Real-time Developer Notifications are not working.
 
     * A: Make sure the Google Play service account has access as the **Publisher** so Google Play
-    can publish updates to you.
+      can publish updates to you.
+      
+* Q: Unable to upload the App Bundle to the Play store release with the error `Version code has already been used. Try another version code`
 
+    * A: Update the `versionCode` in the `build.gradle` file.
+    
 # Optional: Build the Android app from the command line
 
 The sample allows you to specify signing keys and a package name with the Gradle command line. This
@@ -290,7 +343,7 @@ The sample contains a file `example-keystore.properties` that you can copy (or m
 needs.
 
 1. Create a file `release-keystore.properties` with your release key information (see
-`example-keystore.properties` for the expected format)
+   `example-keystore.properties` for the expected format)
 
     * [https://developer.android.com/studio/publish/app-signing.html#signing-manually](https://developer.android.com/studio/publish/app-signing.html#signing-manually)
 

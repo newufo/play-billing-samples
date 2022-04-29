@@ -16,13 +16,13 @@
 
 package com.sample.android.classytaxijava.billing;
 
-import androidx.annotation.Nullable;
-
 import com.android.billingclient.api.Purchase;
 import com.sample.android.classytaxijava.Constants;
 import com.sample.android.classytaxijava.data.SubscriptionStatus;
 
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 public class BillingUtilities {
 
@@ -34,7 +34,7 @@ public class BillingUtilities {
             @Nullable List<SubscriptionStatus> subscriptions, String sku) {
         if (subscriptions != null) {
             for (SubscriptionStatus subscription : subscriptions) {
-                if (sku.equals(subscription.sku)) {
+                if (sku.equals(subscription.getSku())) {
                     return subscription;
                 }
             }
@@ -107,9 +107,9 @@ public class BillingUtilities {
      */
     public static boolean isGracePeriod(@Nullable SubscriptionStatus subscription) {
         return subscription != null &&
-                subscription.isEntitlementActive &&
-                subscription.isGracePeriod &&
-                !subscription.subAlreadyOwned;
+                subscription.isEntitlementActive() &&
+                subscription.isGracePeriod() &&
+                !subscription.isSubAlreadyOwned();
     }
 
     /**
@@ -117,9 +117,9 @@ public class BillingUtilities {
      */
     public static boolean isSubscriptionRestore(@Nullable SubscriptionStatus subscription) {
         return subscription != null &&
-                subscription.isEntitlementActive &&
-                !subscription.willRenew &&
-                !subscription.subAlreadyOwned;
+                subscription.isEntitlementActive() &&
+                !subscription.isWillRenew() &&
+                !subscription.isSubAlreadyOwned();
     }
 
     /**
@@ -127,9 +127,9 @@ public class BillingUtilities {
      */
     public static boolean isBasicContent(@Nullable SubscriptionStatus subscription) {
         return subscription != null &&
-                subscription.isEntitlementActive &&
-                Constants.BASIC_SKU.equals(subscription.sku) &&
-                !subscription.subAlreadyOwned;
+                subscription.isEntitlementActive() &&
+                Constants.BASIC_SKU.equals(subscription.getSku()) &&
+                !subscription.isSubAlreadyOwned();
     }
 
     /**
@@ -137,9 +137,9 @@ public class BillingUtilities {
      */
     public static boolean isPremiumContent(@Nullable SubscriptionStatus subscription) {
         return subscription != null &&
-                subscription.isEntitlementActive &&
-                Constants.PREMIUM_SKU.equals(subscription.sku) &&
-                !subscription.subAlreadyOwned;
+                subscription.isEntitlementActive() &&
+                Constants.PREMIUM_SKU.equals(subscription.getSku()) &&
+                !subscription.isSubAlreadyOwned();
     }
 
     /**
@@ -147,9 +147,9 @@ public class BillingUtilities {
      */
     public static boolean isAccountHold(SubscriptionStatus subscription) {
         return subscription != null &&
-                !subscription.isEntitlementActive &&
-                subscription.isAccountHold &&
-                !subscription.subAlreadyOwned;
+                !subscription.isEntitlementActive() &&
+                subscription.isAccountHold() &&
+                !subscription.isSubAlreadyOwned();
     }
 
     /**
@@ -157,15 +157,15 @@ public class BillingUtilities {
      */
     public static boolean isPaused(SubscriptionStatus subscription) {
         return subscription != null &&
-                !subscription.isEntitlementActive &&
-                subscription.isPaused &&
-                !subscription.subAlreadyOwned;
+                !subscription.isEntitlementActive() &&
+                subscription.isPaused() &&
+                !subscription.isSubAlreadyOwned();
     }
 
     /**
      * Returns true if the subscription is already owned and requires a transfer to this account.
      */
     public static boolean isTransferRequired(SubscriptionStatus subscription) {
-        return subscription != null && subscription.subAlreadyOwned;
+        return subscription != null && subscription.isSubAlreadyOwned();
     }
 }

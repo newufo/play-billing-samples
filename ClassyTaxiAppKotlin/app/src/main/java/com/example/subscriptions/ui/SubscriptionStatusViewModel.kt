@@ -17,12 +17,13 @@
 package com.example.subscriptions.ui
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.LiveData
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import com.example.subscriptions.SubApp
 import com.example.subscriptions.data.SubscriptionStatus
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 
 class SubscriptionStatusViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -62,9 +63,16 @@ class SubscriptionStatusViewModel(application: Application) : AndroidViewModel(a
 
     fun userChanged() {
         repository.deleteLocalUserData()
-        FirebaseInstanceId.getInstance().token?.let {
-            registerInstanceId(it)
-        }
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+            val token = task.result
+            if (token != null) {
+                registerInstanceId(token)
+            }
+        })
         repository.fetchSubscriptions()
     }
 
@@ -91,7 +99,7 @@ class SubscriptionStatusViewModel(application: Application) : AndroidViewModel(a
      * Register a new subscription.
      */
     fun registerSubscription(sku: String, purchaseToken: String) =
-            repository.registerSubscription(sku, purchaseToken)
+        repository.registerSubscription(sku, purchaseToken)
 
     /**
      * Transfer the subscription to this account.

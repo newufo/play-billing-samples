@@ -16,9 +16,9 @@
 
 package com.example.subscriptions.data
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import com.android.billingclient.api.Purchase
 import com.example.subscriptions.Constants
 import com.example.subscriptions.billing.BillingClientLifecycle
@@ -29,9 +29,9 @@ import com.example.subscriptions.data.network.WebDataSource
  * Repository handling the work with subscriptions.
  */
 class DataRepository private constructor(
-        private val localDataSource: LocalDataSource,
-        private val webDataSource: WebDataSource,
-        private val billingClientLifecycle: BillingClientLifecycle
+    private val localDataSource: LocalDataSource,
+    private val webDataSource: WebDataSource,
+    private val billingClientLifecycle: BillingClientLifecycle
 ) {
 
     /**
@@ -64,29 +64,29 @@ class DataRepository private constructor(
         // Update content from the web.
         // We are using a MediatorLiveData so that we can clear the data immediately
         // when the subscription changes.
-        basicContent.addSource(webDataSource.basicContent, {
+        basicContent.addSource(webDataSource.basicContent) {
             basicContent.postValue(it)
-        })
-        premiumContent.addSource(webDataSource.premiumContent, {
+        }
+        premiumContent.addSource(webDataSource.premiumContent) {
             premiumContent.postValue(it)
-        })
+        }
         // Database changes are observed by the ViewModel.
-        subscriptions.addSource(localDataSource.subscriptions, {
+        subscriptions.addSource(localDataSource.subscriptions) {
             Log.d("Repository", "Subscriptions updated: ${it?.size}")
             subscriptions.postValue(it)
-        })
+        }
         // Observed network changes are store in the database.
         // The database changes will propagate to the ViewModel.
         // We could write different logic to ensure that the network call completes when
         // the UI component is inactive.
-        subscriptions.addSource(webDataSource.subscriptions, {
+        subscriptions.addSource(webDataSource.subscriptions) {
             updateSubscriptionsFromNetwork(it)
-        })
+        }
         // When the list of purchases changes, we need to update the subscription status
         // to indicate whether the subscription is local or not. It is local if the
         // the Google Play Billing APIs return a Purchase record for the SKU. It is not
         // local if there is no record of the subscription on the device.
-        subscriptions.addSource(billingClientLifecycle.purchases, {
+        subscriptions.addSource(billingClientLifecycle.purchases) { it ->
             // We only need to update the database if the isLocalPurchase field needs to change.
             val purchases = it
             subscriptions.value?.let {
@@ -96,14 +96,14 @@ class DataRepository private constructor(
                     localDataSource.updateSubscriptions(subscriptions)
                 }
             }
-        })
+        }
     }
 
     fun updateSubscriptionsFromNetwork(remoteSubscriptions: List<SubscriptionStatus>?) {
         val oldSubscriptions = subscriptions.value
         val purchases = billingClientLifecycle.purchases.value
         val subscriptions =
-                mergeSubscriptionsAndPurchases(oldSubscriptions, remoteSubscriptions, purchases)
+            mergeSubscriptionsAndPurchases(oldSubscriptions, remoteSubscriptions, purchases)
         remoteSubscriptions?.let {
             acknowledgeRegisteredPurchaseTokens(remoteSubscriptions)
         }
@@ -149,7 +149,7 @@ class DataRepository private constructor(
      * Acknowledge subscriptions that have been registered by the server.
      */
     private fun acknowledgeRegisteredPurchaseTokens(
-            remoteSubscriptions: List<SubscriptionStatus>
+        remoteSubscriptions: List<SubscriptionStatus>
     ) {
         for (remoteSubscription in remoteSubscriptions) {
             remoteSubscription.purchaseToken?.let { purchaseToken ->
@@ -167,9 +167,9 @@ class DataRepository private constructor(
      * and the purchase token for the subscription is still on this device.
      */
     private fun mergeSubscriptionsAndPurchases(
-            oldSubscriptions: List<SubscriptionStatus>?,
-            newSubscriptions: List<SubscriptionStatus>?,
-            purchases: List<Purchase>?
+        oldSubscriptions: List<SubscriptionStatus>?,
+        newSubscriptions: List<SubscriptionStatus>?,
+        purchases: List<Purchase>?
     ): List<SubscriptionStatus> {
         return ArrayList<SubscriptionStatus>().apply {
             if (purchases != null) {
@@ -188,7 +188,8 @@ class DataRepository private constructor(
                         // and purchase token match their previous value.
                         for (purchase in purchases) {
                             if (purchase.skus[0] == oldSubscription.sku &&
-                                    purchase.purchaseToken == oldSubscription.purchaseToken) {
+                                purchase.purchaseToken == oldSubscription.purchaseToken
+                            ) {
                                 // The old subscription that was already owned subscription should
                                 // be added to the new subscriptions.
                                 // Look through the new subscriptions to see if it is there.
@@ -218,11 +219,11 @@ class DataRepository private constructor(
      * Return true if any of the values changed.
      */
     private fun updateLocalPurchaseTokens(
-            subscriptions: List<SubscriptionStatus>?,
-            purchases: List<Purchase>?
+        subscriptions: List<SubscriptionStatus>?,
+        purchases: List<Purchase>?
     ): Boolean {
         var hasChanged = false
-        subscriptions?.let {
+        subscriptions?.let { it ->
             for (subscription in it) {
                 var isLocalPurchase = false
                 var purchaseToken = subscription.purchaseToken
@@ -294,15 +295,14 @@ class DataRepository private constructor(
         private var INSTANCE: DataRepository? = null
 
         fun getInstance(
-                localDataSource: LocalDataSource,
-                webDataSource: WebDataSource,
-                billingClientLifecycle: BillingClientLifecycle
+            localDataSource: LocalDataSource,
+            webDataSource: WebDataSource,
+            billingClientLifecycle: BillingClientLifecycle
         ): DataRepository =
-                INSTANCE ?: synchronized(this) {
-                    INSTANCE ?:
-                    DataRepository(localDataSource, webDataSource, billingClientLifecycle)
-                            .also { INSTANCE = it }
-                }
+            INSTANCE ?: synchronized(this) {
+                INSTANCE ?: DataRepository(localDataSource, webDataSource, billingClientLifecycle)
+                    .also { INSTANCE = it }
+            }
     }
 
 }
